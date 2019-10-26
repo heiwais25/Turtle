@@ -3,13 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^4.5.1",
+    "@material-ui/icons": "^4.5.1",
     "@types/jest": "24.0.19",
     "@types/node": "12.11.6",
     "@types/react": "16.9.9",
     "@types/react-dom": "16.9.2",
+    "immer": "^4.0.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
+    "react-redux": "^7.1.1",
+    "react-router-dom": "^5.1.2",
     "react-scripts": "3.2.0",
+    "redux": "^4.0.4",
+    "redux-action": "^1.2.2",
+    "redux-actions": "^2.6.5",
+    "redux-form": "^8.2.6",
+    "redux-logger": "^3.0.6",
+    "redux-pender": "^2.0.12",
+    "redux-thunk": "^2.3.0",
     "typescript": "3.6.4"
   },
   "scripts": {
@@ -32,5 +44,16 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-redux": "^7.1.5",
+    "@types/react-router-dom": "^5.1.0",
+    "@types/redux": "^3.6.0",
+    "@types/redux-action": "^1.2.5",
+    "@types/redux-actions": "^2.6.1",
+    "@types/redux-form": "^8.1.9",
+    "@types/redux-logger": "^3.0.7",
+    "@types/redux-thunk": "^2.1.0",
+    "eslint-plugin-react-hooks": "^2.2.0"
   }
 }
