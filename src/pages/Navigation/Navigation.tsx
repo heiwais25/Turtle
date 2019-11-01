@@ -1,25 +1,17 @@
 import React from "react";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
 import CancelIcon from "@material-ui/icons/Cancel";
 import TrendingUpIcon from "@material-ui/icons/TrendingUp";
+import SettingsIcon from "@material-ui/icons/Settings";
 import {
   TextField,
   AppBar,
-  CssBaseline,
-  Divider,
   Drawer,
   Hidden,
-  Grid,
   IconButton,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
   Toolbar,
-  Typography
+  Box
 } from "@material-ui/core";
 import {
   makeStyles,
@@ -27,6 +19,8 @@ import {
   Theme,
   createStyles
 } from "@material-ui/core/styles";
+import { ProjectListItemData } from "store/modules/project";
+import DrawerList from "./DrawerList";
 
 const drawerWidth = 240;
 
@@ -42,11 +36,13 @@ const useStyles = makeStyles((theme: Theme) =>
       }
     },
     title: {
+      fontSize: "1.3rem",
+      fontWeight: 500,
       flexGrow: 1,
-      display: "none",
-      [theme.breakpoints.up("sm")]: {
-        display: "block"
-      }
+      display: "block"
+      // [theme.breakpoints.up("sm")]: {
+      //   display: "block"
+      // }
     },
     appBar: {
       marginLeft: drawerWidth,
@@ -63,7 +59,10 @@ const useStyles = makeStyles((theme: Theme) =>
     headerButtonGroup: {
       marginLeft: "auto",
       "& button": {
-        marginLeft: theme.spacing(0.25)
+        "&:hover": {
+          color: "hsla(0,0%,100%,.7)"
+        },
+        marginLeft: "0px"
       }
     },
     toolbar: theme.mixins.toolbar,
@@ -82,6 +81,42 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     searchIcon: {
       marginRight: theme.spacing(1)
+    },
+    drawerList: {},
+    drawerListItem: {
+      letterSpacing: 1,
+      padding: 0,
+      height: "40px",
+      position: "relative",
+      "& button": {
+        visibility: "hidden",
+        position: "absolute",
+        right: 0,
+        padding: "6px"
+      },
+      "&:hover": {
+        "& button": {
+          visibility: "visible"
+        }
+      }
+    },
+    drawerMenu: {
+      "& li": {
+        minHeight: "36px"
+      }
+    },
+    anchorMenu: {
+      fontSize: "0.9rem"
+    },
+    anchorMenuPaper: {
+      width: "120px",
+      "& ul": {
+        padding: theme.spacing(1, 0)
+      },
+      "& li": {
+        height: "30px",
+        fontSize: "0.8rem"
+      }
     }
   })
 );
@@ -100,14 +135,21 @@ const SearchBar: React.FC<SearchBarProps> = React.memo(
       setSearchText(event.currentTarget.value);
     };
 
+    const handleKeyboardEvent = (event: React.KeyboardEvent) => {
+      // Capture Escape
+      if (event.keyCode === 27) handleSearchClose();
+    };
+
     return (
       <React.Fragment>
         <SearchIcon color="primary" className={classes.searchIcon} />
         <TextField
+          autoFocus
           fullWidth
           placeholder="Search..."
           value={searchText}
           onChange={handleSearchTextChange}
+          onKeyDown={handleKeyboardEvent}
         />
         <IconButton onClick={handleSearchClose}>
           <CancelIcon />
@@ -117,9 +159,26 @@ const SearchBar: React.FC<SearchBarProps> = React.memo(
   }
 );
 
-interface Props {}
+type Props = {
+  handleSetProjectList: (projectList: ProjectListItemData[]) => void;
+  handleProjectUpdate: (
+    projectName: string,
+    editingProject?: ProjectListItemData
+  ) => void;
+  handleProjectDelete: (project: ProjectListItemData) => void;
+  handleCurrentProjectChange: (project: ProjectListItemData) => void;
+  projectList: ProjectListItemData[];
+  currentProject: ProjectListItemData;
+};
 
-const Navigation: React.FC<Props> = () => {
+const Navigation: React.FC<Props> = ({
+  handleSetProjectList,
+  handleProjectUpdate,
+  handleProjectDelete,
+  handleCurrentProjectChange,
+  projectList,
+  currentProject
+}) => {
   const classes = useStyles();
   const theme = useTheme();
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -137,40 +196,28 @@ const Navigation: React.FC<Props> = () => {
     setSearchOpen(false);
   }, []);
 
+  const handleCurrentProjectChangeSet = React.useCallback(
+    (project: ProjectListItemData) => {
+      handleCurrentProjectChange(project);
+      setMobileOpen(false);
+    },
+    []
+  );
+
   const drawer = (
-    <div style={{ position: "relative", height: "100%" }}>
-      <div className={classes.toolbar} />
-      <Divider />
-      <List>
-        {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {["All mail", "Trash", "Spam"].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>
-              {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-            </ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
-      <ListItem button style={{ position: "absolute", bottom: 0 }}>
-        hello
-      </ListItem>
-    </div>
+    <DrawerList
+      classes={classes}
+      projectList={projectList}
+      currentProject={currentProject}
+      handleCurrentProjectChange={handleCurrentProjectChangeSet}
+      handleProjectUpdate={handleProjectUpdate}
+      handleProjectDelete={handleProjectDelete}
+      handleSetProjectList={handleSetProjectList}
+    />
   );
 
   return (
     <div className={classes.root}>
-      <CssBaseline />
       <AppBar
         position="fixed"
         className={classes.appBar}
@@ -188,9 +235,7 @@ const Navigation: React.FC<Props> = () => {
               >
                 <MenuIcon />
               </IconButton>
-              <Typography variant="h6" noWrap className={classes.title}>
-                TURTLE
-              </Typography>
+              <Box className={classes.title}>{currentProject.name}</Box>
               <div className={classes.headerButtonGroup}>
                 <IconButton
                   color="inherit"
@@ -203,6 +248,9 @@ const Navigation: React.FC<Props> = () => {
                 <IconButton color="inherit" aria-label="analysis" edge="start">
                   <TrendingUpIcon />
                 </IconButton>
+                <IconButton color="inherit" aria-label="analysis" edge="start">
+                  <SettingsIcon />
+                </IconButton>
               </div>
             </React.Fragment>
           ) : (
@@ -213,8 +261,8 @@ const Navigation: React.FC<Props> = () => {
           )}
         </Toolbar>
       </AppBar>
-      <nav className={classes.drawer} aria-label="mailbox folders">
-        <Hidden smUp implementation="css">
+      <nav className={classes.drawer} aria-label="project folders">
+        <Hidden smUp implementation="js">
           <Drawer
             variant="temporary"
             anchor={theme.direction === "rtl" ? "right" : "left"}
@@ -230,7 +278,7 @@ const Navigation: React.FC<Props> = () => {
             {drawer}
           </Drawer>
         </Hidden>
-        <Hidden xsDown implementation="css">
+        <Hidden xsDown implementation="js">
           <Drawer
             classes={{
               paper: classes.drawerPaper

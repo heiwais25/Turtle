@@ -7,10 +7,33 @@ import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import "./App.css";
 
+// Color pallete referencing https://colorhunt.co/palette/22272
+
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: "#212121"
+      main: "#00695f"
+    },
+    secondary: {
+      main: "#ff1744"
+    }
+  },
+  mixins: {
+    toolbar: {
+      height: "48px"
+    }
+  },
+  overrides: {
+    MuiListItem: {},
+    MuiListItemIcon: {
+      root: {
+        minWidth: "40px"
+      }
+    },
+    MuiTypography: {
+      h6: {
+        fontSize: "1.1rem"
+      }
     }
   }
 });
