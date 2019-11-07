@@ -2,6 +2,7 @@
   "name": "turtle",
   "version": "0.1.0",
   "private": true,
+  "main": "src/start.js",
   "dependencies": {
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
@@ -9,6 +10,7 @@
     "@types/node": "12.11.6",
     "@types/react": "16.9.9",
     "@types/react-dom": "16.9.2",
+    "dotenv": "^8.2.0",
     "immer": "^4.0.2",
     "lodash-es": "^4.17.15",
     "lodash-move": "^1.1.1",
@@ -31,10 +33,13 @@
     "typescript": "3.6.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "react:start": " react-scripts start",
+    "react:build": "react-scripts build",
+    "react:test": "react-scripts test",
+    "react:eject": "react-scripts eject",
+    "dev": "concurrently \"yarn react:start\" \"yarn electron:dev\"",
+    "electron:start": "electron .",
+    "electron:dev": "cross-env NODE_ENV=dev nodemon --exec 'yarn electron:start'"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -51,7 +56,22 @@
       "last 1 safari version"
     ]
   },
+  "build": {
+    "appid": "some.id.ofyours",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "category": "your.app.category.type",
+      "iconUrl": "path-to-icon.png"
+    },
+    "mac": {
+      "category": "your.app.category.type",
+      "iconUrl": "path-to-icon.png"
+    }
+  },
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
     "@types/lodash-es": "^4.17.3",
     "@types/react-beautiful-dnd": "^11.0.3",
     "@types/react-redux": "^7.1.5",
@@ -62,6 +82,10 @@
     "@types/redux-form": "^8.1.9",
     "@types/redux-logger": "^3.0.7",
     "@types/redux-thunk": "^2.1.0",
+    "electron": "^7.0.1",
+    "electron-devtools-installer": "^2.2.4",
+    "electron-is-dev": "^1.1.0",
+    "electron-reload": "^1.5.0",
     "eslint-plugin-react-hooks": "^2.2.0"
   }
 }
