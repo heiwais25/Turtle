@@ -5,6 +5,7 @@ import { ProjectListItemData } from "store/modules/project";
 import DrawerListItem from "./DrawerListItem";
 import { ProjectUpdateDialog } from "systems";
 import { CautionDialog } from "components";
+import { ProjectDBData } from "../../interfaces/project";
 import {
   DragDropContext,
   Droppable,
@@ -23,8 +24,13 @@ type Props = {
   ) => void;
   handleProjectDelete: (project: ProjectListItemData) => void;
   handleCurrentProjectChange: (project: ProjectListItemData) => void;
-  currentProject: ProjectListItemData;
+  handleCurrentProjectClear: () => void;
+  currentProject?: ProjectListItemData;
   handleSetProjectList: (projectList: ProjectListItemData[]) => void;
+  handleProjectOrderChange: (
+    projectA: ProjectDBData,
+    projectB: ProjectDBData
+  ) => void;
 };
 
 const reorder = (
@@ -32,9 +38,10 @@ const reorder = (
   startIndex: number,
   endIndex: number
 ) => {
-  if (startIndex === 0 || endIndex === 0) {
-    return list;
-  }
+  console.log(startIndex, endIndex);
+  // if (startIndex === 0 || endIndex === 0) {
+  //   return list;
+  // }
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
@@ -69,7 +76,9 @@ const DrawerList: React.FC<Props> = ({
   projectList,
   handleProjectUpdate,
   handleProjectDelete,
+  handleCurrentProjectClear,
   handleCurrentProjectChange,
+  handleProjectOrderChange,
   currentProject,
   handleSetProjectList
 }) => {
@@ -121,6 +130,12 @@ const DrawerList: React.FC<Props> = ({
     if (!result.destination) {
       return;
     }
+    console.log(result.source.index, result.destination.index);
+    console.log(projectList);
+    handleProjectOrderChange(
+      projectList[result.source.index],
+      projectList[result.destination.index]
+    );
 
     const items = reorder(
       projectList,
@@ -129,10 +144,18 @@ const DrawerList: React.FC<Props> = ({
     );
     handleSetProjectList(items);
   };
+
   return (
     <div style={{ position: "relative", height: "100%" }}>
       <div className={classes.toolbar} />
       <Divider />
+      <ListItem
+        button
+        onClick={handleCurrentProjectClear}
+        selected={!currentProject}
+      >
+        <Box fontSize="1rem">All Projects</Box>
+      </ListItem>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable">
           {(provided, snapshot) => (
@@ -144,11 +167,15 @@ const DrawerList: React.FC<Props> = ({
               style={getListStyle(snapshot.isDraggingOver)}
             >
               {projectList.map((project, index) => {
-                const selected = project.name === currentProject.name;
+                let selected = false;
+                if (currentProject) {
+                  selected = project._id === currentProject._id;
+                }
+                // const selected = project.name === currentProject.name;
                 return (
                   <Draggable
                     index={index}
-                    key={project.name}
+                    key={project._id}
                     draggableId={project.name}
                   >
                     {(provided, snapshot) => (
@@ -162,7 +189,7 @@ const DrawerList: React.FC<Props> = ({
                         )}
                       >
                         <DrawerListItem
-                          key={project.name}
+                          key={project._id}
                           classes={classes}
                           project={project}
                           handleEditingProjectChange={

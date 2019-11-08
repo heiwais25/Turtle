@@ -5,3 +5,4 @@ export const UPDATE_PROJECT = "project/UPDATE_PROJECT";
 export const DELETE_PROJECT = "project/DELETE_PROJECT";
 export const SET_CURRENT_PROJECT_INDEX = "project/SET_CURRENT_PROJECT_INDEX";
 export const SET_PROJECT_LIST = "project/SET_PROJECT_LIST";
+export const CHANGE_PROJECT_ORDER = "project/CHANGE_PROJECT_ORDER";

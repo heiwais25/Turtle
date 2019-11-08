@@ -2,7 +2,7 @@
   "name": "turtle",
   "version": "0.1.0",
   "private": true,
-  "main": "src/start.js",
+  "main": "dist/electronMain/index.js",
   "dependencies": {
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
@@ -11,16 +11,21 @@
     "@types/react": "16.9.9",
     "@types/react-dom": "16.9.2",
     "dotenv": "^8.2.0",
+    "electron-updater": "^4.2.0",
     "immer": "^4.0.2",
+    "is-electron": "^2.2.0",
     "lodash-es": "^4.17.15",
     "lodash-move": "^1.1.1",
+    "nedb": "^1.8.0",
+    "nedb-promises": "^4.0.0",
     "react": "^16.11.0",
     "react-beautiful-dnd": "^12.0.0",
     "react-dom": "^16.11.0",
     "react-fast-compare": "^2.0.4",
     "react-redux": "^7.1.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.2.0",
+    "react-script": "^2.0.5",
+    "react-scripts": "^3.2.0",
     "react-spring": "^8.0.27",
     "react-use-gesture": "^6.0.14",
     "redux": "^4.0.4",
@@ -30,6 +35,8 @@
     "redux-logger": "^3.0.6",
     "redux-pender": "^2.0.12",
     "redux-thunk": "^2.3.0",
+    "rxjs": "^6.5.3",
+    "thenify": "^3.3.0",
     "typescript": "3.6.4"
   },
   "scripts": {
@@ -38,8 +45,8 @@
     "react:test": "react-scripts test",
     "react:eject": "react-scripts eject",
     "dev": "concurrently \"yarn react:start\" \"yarn electron:dev\"",
-    "electron:start": "electron .",
-    "electron:dev": "cross-env NODE_ENV=dev nodemon --exec 'yarn electron:start'"
+    "electron:start": "tsc -p tsconfig.electron.json && electron .",
+    "electron:dev": "cross-env NODE_ENV=dev nodemon --watch src/electronMain/ --exec \"yarn electron:start\" -e ts"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -71,21 +78,34 @@
     }
   },
   "devDependencies": {
-    "@types/dotenv": "^8.2.0",
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/plugin-proposal-class-properties": "^7.7.0",
+    "@babel/preset-env": "^7.7.1",
+    "@babel/preset-typescript": "^7.7.2",
+    "@types/electron-devtools-installer": "^2.2.0",
     "@types/lodash-es": "^4.17.3",
+    "@types/nedb": "^1.8.9",
     "@types/react-beautiful-dnd": "^11.0.3",
     "@types/react-redux": "^7.1.5",
     "@types/react-router-dom": "^5.1.0",
-    "@types/redux": "^3.6.0",
     "@types/redux-action": "^1.2.5",
     "@types/redux-actions": "^2.6.1",
     "@types/redux-form": "^8.1.9",
     "@types/redux-logger": "^3.0.7",
-    "@types/redux-thunk": "^2.1.0",
+    "babel-loader": "^8.0.6",
+    "babel-preset-env": "^1.7.0",
+    "chokidar": "^3.3.0",
     "electron": "^7.0.1",
     "electron-devtools-installer": "^2.2.4",
     "electron-is-dev": "^1.1.0",
     "electron-reload": "^1.5.0",
-    "eslint-plugin-react-hooks": "^2.2.0"
+    "eslint-plugin-react-hooks": "^2.2.0",
+    "nodemon": "^1.19.4",
+    "ts-loader": "^6.2.1",
+    "ts-node": "^8.4.1",
+    "webpack": "4.41.0",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "3.2.1"
   }
 }

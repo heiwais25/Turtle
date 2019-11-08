@@ -87,14 +87,12 @@ const DrawlerListItem: React.FC<DrawlerListItemProps> = ({
           </ListItemIcon>
           <ListItemText primary="Edit" />
         </MenuItem>
-        {!project.isDefault && (
-          <MenuItem onClick={handleDeleteButtonClick}>
-            <ListItemIcon>
-              <DeleteIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary="Delete" />
-          </MenuItem>
-        )}
+        <MenuItem onClick={handleDeleteButtonClick}>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Delete" />
+        </MenuItem>
       </Menu>
     </ListItem>
   );

@@ -6,6 +6,7 @@ module.exports = [
     mode: "development",
     entry: "./src/electronMain/index.ts",
     target: "electron-main",
+    devtool: "inline-source-map",
     watch: true,
     devServer: {
       contentBase: "./dist",

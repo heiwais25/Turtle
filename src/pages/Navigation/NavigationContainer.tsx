@@ -5,12 +5,14 @@ import { StoreState } from "store/modules";
 import * as projectActions from "actions/project";
 import { bindActionCreators } from "redux";
 import { ProjectListItemData } from "store/modules/project";
+import { ProjectDBUpdateQueryData } from "interfaces/project";
+import { ProjectDBData } from "../../interfaces/project";
 
 type State = {};
 
 type ReduxStateProps = {
   projectList: ProjectListItemData[];
-  currentProject: ProjectListItemData;
+  currentProject?: ProjectListItemData;
 };
 
 type ReduxDispatchProps = {
@@ -24,11 +26,17 @@ class NavigationContainer extends React.Component<Props, State> {
     projectName: string,
     editingProject?: ProjectListItemData
   ) => {
-    const { ProjectActions } = this.props;
+    const { ProjectActions, projectList } = this.props;
     if (editingProject) {
-      ProjectActions.updateProject({ editingProject, projectName });
+      const { createdAt, updatedAt, ...extra } = editingProject;
+      const formData: ProjectDBUpdateQueryData = {
+        ...extra,
+        name: projectName
+      };
+      ProjectActions.updateProject(formData);
     } else {
-      ProjectActions.createProject({ projectName });
+      const nextIdx = projectList.length;
+      ProjectActions.createProject(projectName, nextIdx);
     }
   };
 
@@ -38,9 +46,17 @@ class NavigationContainer extends React.Component<Props, State> {
     ProjectActions.setProjectList({ projectList });
   };
 
+  handleProjectOrderChange = (
+    projectA: ProjectDBData,
+    projectB: ProjectDBData
+  ) => {
+    const { ProjectActions } = this.props;
+    ProjectActions.changeProjectOrder(projectA, projectB);
+  };
+
   handleProjectDelete = (editingProject: ProjectListItemData) => {
     const { ProjectActions } = this.props;
-    ProjectActions.deleteProject({ editingProject });
+    ProjectActions.deleteProject(editingProject);
   };
 
   handleCurrentProjectChange = (project: ProjectListItemData) => {
@@ -48,23 +64,33 @@ class NavigationContainer extends React.Component<Props, State> {
     ProjectActions.setCurrentProject({ currentProject: project });
   };
 
+  handleCurrentProjectClear = () => {
+    const { ProjectActions } = this.props;
+    ProjectActions.setCurrentProject({});
+  };
+
   render() {
     const {
       handleSetProjectList,
       handleProjectUpdate,
       handleProjectDelete,
-      handleCurrentProjectChange
+      handleCurrentProjectChange,
+      handleCurrentProjectClear,
+      handleProjectOrderChange
     } = this;
     const { projectList, currentProject } = this.props;
+
     return (
       <React.Fragment>
         <Navigation
+          projectList={projectList}
+          currentProject={currentProject}
           handleSetProjectList={handleSetProjectList}
           handleProjectUpdate={handleProjectUpdate}
           handleProjectDelete={handleProjectDelete}
           handleCurrentProjectChange={handleCurrentProjectChange}
-          projectList={projectList}
-          currentProject={currentProject}
+          handleProjectOrderChange={handleProjectOrderChange}
+          handleCurrentProjectClear={handleCurrentProjectClear}
         />
       </React.Fragment>
     );
