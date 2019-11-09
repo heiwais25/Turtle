@@ -15,12 +15,18 @@ const createProjectAPI = (
 };
 
 const updateProjectAPI = (formData: ProjectDBUpdateQueryData) => {
-  console.log(formData);
   return db.updateProject(formData);
 };
 
-const deleteProjectAPI = (project: ProjectDBData) => {
-  return db.deleteProject(project);
+const updateProjectListAPI = (projectList: ProjectDBData[]) => {
+  return db.updateProjectList(projectList);
+};
+
+const deleteProjectAPI = (project: ProjectDBData, cb?: Function) => {
+  return db.deleteProject(project).then(res => {
+    if (cb) cb();
+    return res;
+  });
 };
 
 const changeProjectOderAPI = (
@@ -60,4 +66,9 @@ export const deleteProject = createAction(
 export const setProjectList = createAction(
   ActionTypes.SET_PROJECT_LIST,
   ({ projectList }: { projectList: ProjectListItemData[] }) => ({ projectList })
+);
+
+export const updateProjectList = createAction(
+  ActionTypes.UPDATE_PROJECT_LIST,
+  updateProjectListAPI
 );

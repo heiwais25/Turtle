@@ -80,7 +80,6 @@ var DatabaseService = /** @class */ (function () {
                 });
             });
         };
-        console.log(filePath);
         this._db = {
             tasks: new nedb_1.default({
                 filename: path_1.default.join(filePath, "tasks.db"),
@@ -137,6 +136,20 @@ var DatabaseService = /** @class */ (function () {
             });
         });
     };
+    DatabaseService.prototype.updateProjectList = function (projectList) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Promise.all(projectList.map(function (project) {
+                            var updatedAt = project.updatedAt, extra = __rest(project, ["updatedAt"]);
+                            return _this.updateItem("projects", extra);
+                        }))];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
     /**
      * Change the order of two project which will be used as a input
      */
@@ -183,7 +196,7 @@ var DatabaseService = /** @class */ (function () {
                     case 2:
                         // 2. 현재 id 보다 낮은 모든 항들에 대해 order - 1
                         _a.sent();
-                        return [2 /*return*/];
+                        return [2 /*return*/, project._id];
                 }
             });
         });
@@ -321,6 +334,17 @@ var DatabaseService = /** @class */ (function () {
             });
         });
     };
+    DatabaseService.prototype.find = function (dbName, findQuery) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            _this._db[dbName].find(findQuery, function (err, docs) {
+                if (err) {
+                    reject(err);
+                }
+                resolve(docs);
+            });
+        });
+    };
     DatabaseService.prototype.getAllUndeletedList = function (dbName) {
         var _this = this;
         return new Promise(function (resolve, reject) {
@@ -331,7 +355,6 @@ var DatabaseService = /** @class */ (function () {
                 .find(query)
                 .sort({ order: 1 })
                 .exec(function (err, docs) {
-                console.log(docs);
                 if (err) {
                     reject(err);
                 }

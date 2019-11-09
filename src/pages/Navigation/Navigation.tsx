@@ -169,10 +169,6 @@ type Props = {
   handleProjectDelete: (project: ProjectListItemData) => void;
   handleCurrentProjectChange: (project: ProjectListItemData) => void;
   handleCurrentProjectClear: () => void;
-  handleProjectOrderChange: (
-    projectA: ProjectDBData,
-    projectB: ProjectListItemData
-  ) => void;
   projectList: ProjectListItemData[];
   currentProject?: ProjectListItemData;
 };
@@ -183,7 +179,6 @@ const Navigation: React.FC<Props> = ({
   handleProjectDelete,
   handleCurrentProjectChange,
   handleCurrentProjectClear,
-  handleProjectOrderChange,
   projectList,
   currentProject
 }) => {
@@ -227,7 +222,6 @@ const Navigation: React.FC<Props> = ({
       handleProjectUpdate={handleProjectUpdate}
       handleProjectDelete={handleProjectDelete}
       handleSetProjectList={handleSetProjectList}
-      handleProjectOrderChange={handleProjectOrderChange}
     />
   );
 

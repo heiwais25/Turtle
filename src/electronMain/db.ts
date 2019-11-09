@@ -31,7 +31,6 @@ class DatabaseService {
    * @param path Directory to store Data Base
    */
   constructor(filePath: string) {
-    console.log(filePath);
     this._db = {
       tasks: new Datastore({
         filename: path.join(filePath, "tasks.db"),
@@ -67,6 +66,15 @@ class DatabaseService {
 
   public async updateProject(formData: ProjectDBUpdateQueryData) {
     return await this.updateItem<ProjectDBData>("projects", formData);
+  }
+
+  public async updateProjectList(projectList: ProjectDBData[]) {
+    return await Promise.all(
+      projectList.map(project => {
+        const { updatedAt, ...extra } = project;
+        return this.updateItem<ProjectDBData>("projects", extra);
+      })
+    );
   }
 
   /**
@@ -111,6 +119,8 @@ class DatabaseService {
       { order: { $gt: project.order } },
       { $inc: { order: -1 } }
     );
+
+    return project._id;
   }
 
   public async getTaskById(id: TaskDBData["_id"]) {
@@ -235,6 +245,17 @@ class DatabaseService {
     });
   }
 
+  private find<T>(dbName: DBNameData, findQuery: unknown) {
+    return new Promise<T[]>((resolve, reject) => {
+      this._db[dbName].find(findQuery, (err: Error, docs: T[]) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(docs);
+      });
+    });
+  }
+
   private getAllUndeletedList<T>(dbName: DBNameData) {
     return new Promise<T[]>((resolve, reject) => {
       const query: { isDeleted: boolean } = {
@@ -245,7 +266,6 @@ class DatabaseService {
         .find(query)
         .sort({ order: 1 })
         .exec((err: Error, docs: T[]) => {
-          console.log(docs);
           if (err) {
             reject(err);
           }

@@ -1,5 +1,6 @@
 import React from "react";
 import { Divider, List, ListItem, ListItemIcon, Box } from "@material-ui/core";
+import _ from "lodash";
 import AddIcon from "@material-ui/icons/Add";
 import { ProjectListItemData } from "store/modules/project";
 import DrawerListItem from "./DrawerListItem";
@@ -27,24 +28,24 @@ type Props = {
   handleCurrentProjectClear: () => void;
   currentProject?: ProjectListItemData;
   handleSetProjectList: (projectList: ProjectListItemData[]) => void;
-  handleProjectOrderChange: (
-    projectA: ProjectDBData,
-    projectB: ProjectDBData
-  ) => void;
 };
 
+// Reordering process
+// 1. Change the order of the list
+// 2. Sort the order (Ascending)
+// 3. set order value to the value with same index in the list
 const reorder = (
   list: ProjectListItemData[],
   startIndex: number,
   endIndex: number
 ) => {
-  console.log(startIndex, endIndex);
-  // if (startIndex === 0 || endIndex === 0) {
-  //   return list;
-  // }
-  const result = Array.from(list);
+  const result: ProjectDBData[] = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
+  const orderList = _.sortBy(result.map(item => item.order));
+  result.forEach((item, idx) => {
+    item.order = orderList[idx];
+  });
   return result;
 };
 
@@ -78,7 +79,6 @@ const DrawerList: React.FC<Props> = ({
   handleProjectDelete,
   handleCurrentProjectClear,
   handleCurrentProjectChange,
-  handleProjectOrderChange,
   currentProject,
   handleSetProjectList
 }) => {
@@ -130,13 +130,6 @@ const DrawerList: React.FC<Props> = ({
     if (!result.destination) {
       return;
     }
-    console.log(result.source.index, result.destination.index);
-    console.log(projectList);
-    handleProjectOrderChange(
-      projectList[result.source.index],
-      projectList[result.destination.index]
-    );
-
     const items = reorder(
       projectList,
       result.source.index,

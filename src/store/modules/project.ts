@@ -1,8 +1,9 @@
 import { handleActions, Action } from "redux-actions";
 import * as ActionTypes from "constants/projectActionTypes";
-import produce from "immer";
+import produce, { immerable } from "immer";
 import { pender } from "redux-pender/lib/utils";
 import { ProjectDBData } from "interfaces/project";
+import isEqual from "react-fast-compare";
 
 export type ProjectListItemData = ProjectDBData;
 
@@ -78,25 +79,19 @@ export default handleActions<State>(
       }
     }),
     ...pender({
-      type: ActionTypes.CHANGE_PROJECT_ORDER,
-      onSuccess: (state, action: Action<number[]>) => {
-        const [smallIdx, largeIdx] = action.payload;
-        console.log(smallIdx, largeIdx);
-        // console.log(updatedProjectList);
+      type: ActionTypes.UPDATE_PROJECT_LIST,
+      onSuccess: (state, action: Action<ProjectDBData[]>) => {
+        const updatedProjectList = action.payload;
         return produce(state, draft => {
-          console.log(draft.projectList);
-          // draft.projectList.forEach(project => {
-          //   console.log(project.order);
-          //   if (project.order >= smallIdx && project.order < largeIdx) {
-          //     // project.order = currentOrder + 1;
-          //   } else if (project.order === largeIdx) {
-          //     console.log("here");
-          //     project.order = smallIdx;
-          //   }
-          // });
-
+          updatedProjectList.forEach(updatedProject => {
+            draft.projectList.forEach((project, idx, arr) => {
+              if (updatedProject._id === project._id) {
+                arr[idx] = updatedProject;
+              }
+            });
+          });
           // Resort project list
-          // draft.projectList.sort((a, b) => a.order - b.order);
+          draft.projectList.sort((a, b) => a.order - b.order);
         });
       }
     }),
@@ -104,11 +99,20 @@ export default handleActions<State>(
       type: ActionTypes.DELETE_PROJECT,
       onSuccess: (state, action: Action<string>) => {
         const id = action.payload;
-        console.log(id);
         return produce(state, draft => {
           const index = draft.projectList.findIndex(item => item._id === id);
           if (index !== -1) {
+            const deletedOrder = draft.projectList[index].order;
             draft.projectList.splice(index, 1);
+            draft.projectList
+              .filter(project => project.order > deletedOrder)
+              .forEach((item, idx, arr) => {
+                const newObject: ProjectDBData = JSON.parse(
+                  JSON.stringify(item)
+                );
+                newObject.order = deletedOrder + idx;
+                arr[idx] = newObject;
+              });
           }
         });
       }

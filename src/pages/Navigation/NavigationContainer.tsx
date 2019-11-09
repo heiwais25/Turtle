@@ -41,22 +41,23 @@ class NavigationContainer extends React.Component<Props, State> {
   };
 
   // For the shuffling
-  handleSetProjectList = (projectList: ProjectListItemData[]) => {
-    const { ProjectActions } = this.props;
-    ProjectActions.setProjectList({ projectList });
-  };
+  handleSetProjectList = (projectList: ProjectDBData[]) => {
+    const { ProjectActions, projectList: previousProjectlist } = this.props;
+    // Changed project list
+    const changedProjectList = projectList.filter(
+      (project, idx) => project.order !== previousProjectlist[idx].order
+    );
+    // console.log(changedProjectList);
 
-  handleProjectOrderChange = (
-    projectA: ProjectDBData,
-    projectB: ProjectDBData
-  ) => {
-    const { ProjectActions } = this.props;
-    ProjectActions.changeProjectOrder(projectA, projectB);
+    ProjectActions.setProjectList({ projectList });
+    ProjectActions.updateProjectList(changedProjectList);
   };
 
   handleProjectDelete = (editingProject: ProjectListItemData) => {
     const { ProjectActions } = this.props;
-    ProjectActions.deleteProject(editingProject);
+    ProjectActions.deleteProject(editingProject, () => {
+      this.handleCurrentProjectClear();
+    });
   };
 
   handleCurrentProjectChange = (project: ProjectListItemData) => {
@@ -75,8 +76,7 @@ class NavigationContainer extends React.Component<Props, State> {
       handleProjectUpdate,
       handleProjectDelete,
       handleCurrentProjectChange,
-      handleCurrentProjectClear,
-      handleProjectOrderChange
+      handleCurrentProjectClear
     } = this;
     const { projectList, currentProject } = this.props;
 
@@ -89,7 +89,6 @@ class NavigationContainer extends React.Component<Props, State> {
           handleProjectUpdate={handleProjectUpdate}
           handleProjectDelete={handleProjectDelete}
           handleCurrentProjectChange={handleCurrentProjectChange}
-          handleProjectOrderChange={handleProjectOrderChange}
           handleCurrentProjectClear={handleCurrentProjectClear}
         />
       </React.Fragment>

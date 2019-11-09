@@ -22,3 +22,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 *.db
+dist/electronMain/db.js
+dist/electronMain/db.js.map
