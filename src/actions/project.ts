@@ -4,43 +4,59 @@ import {
   ProjectDispatchData,
   ProjectListItemData
 } from "store/modules/project";
+import { ProjectDBData, ProjectDBUpdateQueryData } from "interfaces/project";
+import db from "store/db";
+
+const createProjectAPI = (
+  name: ProjectDBData["name"],
+  order: ProjectDBData["order"]
+) => {
+  return db.createProject({ name, order });
+};
+
+const updateProjectAPI = (formData: ProjectDBUpdateQueryData) => {
+  return db.updateProject(formData);
+};
+
+const updateProjectListAPI = (projectList: ProjectDBData[]) => {
+  return db.updateProjectList(projectList);
+};
+
+const deleteProjectAPI = (project: ProjectDBData, cb?: Function) => {
+  return db.deleteProject(project).then(res => {
+    if (cb) cb();
+    return res;
+  });
+};
 
 export const setCurrentProject = createAction(
   ActionTypes.SET_CURRENT_PROJECT_INDEX,
-  ({ currentProject }: { currentProject: ProjectListItemData }) => ({
+  ({ currentProject }: { currentProject?: ProjectListItemData }) => ({
     currentProject
   })
 );
 
 export const createProject = createAction(
   ActionTypes.CREATE_PROJECT,
-  ({ projectName }: { projectName: ProjectDispatchData["projectName"] }) => ({
-    projectName
-  })
+  createProjectAPI
 );
 
 export const updateProject = createAction(
   ActionTypes.UPDATE_PROJECT,
-  ({
-    editingProject,
-    projectName
-  }: {
-    editingProject: ProjectListItemData;
-    projectName: string;
-  }) => ({
-    editingProject,
-    projectName
-  })
+  updateProjectAPI
 );
 
 export const deleteProject = createAction(
   ActionTypes.DELETE_PROJECT,
-  ({ editingProject }: { editingProject: ProjectListItemData }) => ({
-    editingProject
-  })
+  deleteProjectAPI
 );
 
 export const setProjectList = createAction(
   ActionTypes.SET_PROJECT_LIST,
   ({ projectList }: { projectList: ProjectListItemData[] }) => ({ projectList })
+);
+
+export const updateProjectList = createAction(
+  ActionTypes.UPDATE_PROJECT_LIST,
+  updateProjectListAPI
 );

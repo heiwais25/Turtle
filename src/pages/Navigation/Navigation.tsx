@@ -21,6 +21,7 @@ import {
 } from "@material-ui/core/styles";
 import { ProjectListItemData } from "store/modules/project";
 import DrawerList from "./DrawerList";
+import { ProjectDBData } from "../../interfaces/project";
 
 const drawerWidth = 240;
 
@@ -167,8 +168,9 @@ type Props = {
   ) => void;
   handleProjectDelete: (project: ProjectListItemData) => void;
   handleCurrentProjectChange: (project: ProjectListItemData) => void;
+  handleCurrentProjectClear: () => void;
   projectList: ProjectListItemData[];
-  currentProject: ProjectListItemData;
+  currentProject?: ProjectListItemData;
 };
 
 const Navigation: React.FC<Props> = ({
@@ -176,6 +178,7 @@ const Navigation: React.FC<Props> = ({
   handleProjectUpdate,
   handleProjectDelete,
   handleCurrentProjectChange,
+  handleCurrentProjectClear,
   projectList,
   currentProject
 }) => {
@@ -201,8 +204,13 @@ const Navigation: React.FC<Props> = ({
       handleCurrentProjectChange(project);
       setMobileOpen(false);
     },
-    []
+    [handleCurrentProjectChange, setMobileOpen]
   );
+
+  const handleCurrentProjectClearSet = React.useCallback(() => {
+    handleCurrentProjectClear();
+    setMobileOpen(false);
+  }, [handleCurrentProjectClear, setMobileOpen]);
 
   const drawer = (
     <DrawerList
@@ -210,6 +218,7 @@ const Navigation: React.FC<Props> = ({
       projectList={projectList}
       currentProject={currentProject}
       handleCurrentProjectChange={handleCurrentProjectChangeSet}
+      handleCurrentProjectClear={handleCurrentProjectClearSet}
       handleProjectUpdate={handleProjectUpdate}
       handleProjectDelete={handleProjectDelete}
       handleSetProjectList={handleSetProjectList}
@@ -235,7 +244,9 @@ const Navigation: React.FC<Props> = ({
               >
                 <MenuIcon />
               </IconButton>
-              <Box className={classes.title}>{currentProject.name}</Box>
+              <Box className={classes.title}>
+                {currentProject ? currentProject.name : "All Projects"}
+              </Box>
               <div className={classes.headerButtonGroup}>
                 <IconButton
                   color="inherit"

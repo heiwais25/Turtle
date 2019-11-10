@@ -5,12 +5,14 @@ import { StoreState } from "store/modules";
 import * as projectActions from "actions/project";
 import { bindActionCreators } from "redux";
 import { ProjectListItemData } from "store/modules/project";
+import { ProjectDBUpdateQueryData } from "interfaces/project";
+import { ProjectDBData } from "../../interfaces/project";
 
 type State = {};
 
 type ReduxStateProps = {
   projectList: ProjectListItemData[];
-  currentProject: ProjectListItemData;
+  currentProject?: ProjectListItemData;
 };
 
 type ReduxDispatchProps = {
@@ -24,23 +26,38 @@ class NavigationContainer extends React.Component<Props, State> {
     projectName: string,
     editingProject?: ProjectListItemData
   ) => {
-    const { ProjectActions } = this.props;
+    const { ProjectActions, projectList } = this.props;
     if (editingProject) {
-      ProjectActions.updateProject({ editingProject, projectName });
+      const { createdAt, updatedAt, ...extra } = editingProject;
+      const formData: ProjectDBUpdateQueryData = {
+        ...extra,
+        name: projectName
+      };
+      ProjectActions.updateProject(formData);
     } else {
-      ProjectActions.createProject({ projectName });
+      const nextIdx = projectList.length;
+      ProjectActions.createProject(projectName, nextIdx);
     }
   };
 
   // For the shuffling
-  handleSetProjectList = (projectList: ProjectListItemData[]) => {
-    const { ProjectActions } = this.props;
+  handleSetProjectList = (projectList: ProjectDBData[]) => {
+    const { ProjectActions, projectList: previousProjectlist } = this.props;
+    // Changed project list
+    const changedProjectList = projectList.filter(
+      (project, idx) => project.order !== previousProjectlist[idx].order
+    );
+    // console.log(changedProjectList);
+
     ProjectActions.setProjectList({ projectList });
+    ProjectActions.updateProjectList(changedProjectList);
   };
 
   handleProjectDelete = (editingProject: ProjectListItemData) => {
     const { ProjectActions } = this.props;
-    ProjectActions.deleteProject({ editingProject });
+    ProjectActions.deleteProject(editingProject, () => {
+      this.handleCurrentProjectClear();
+    });
   };
 
   handleCurrentProjectChange = (project: ProjectListItemData) => {
@@ -48,23 +65,31 @@ class NavigationContainer extends React.Component<Props, State> {
     ProjectActions.setCurrentProject({ currentProject: project });
   };
 
+  handleCurrentProjectClear = () => {
+    const { ProjectActions } = this.props;
+    ProjectActions.setCurrentProject({});
+  };
+
   render() {
     const {
       handleSetProjectList,
       handleProjectUpdate,
       handleProjectDelete,
-      handleCurrentProjectChange
+      handleCurrentProjectChange,
+      handleCurrentProjectClear
     } = this;
     const { projectList, currentProject } = this.props;
+
     return (
       <React.Fragment>
         <Navigation
+          projectList={projectList}
+          currentProject={currentProject}
           handleSetProjectList={handleSetProjectList}
           handleProjectUpdate={handleProjectUpdate}
           handleProjectDelete={handleProjectDelete}
           handleCurrentProjectChange={handleCurrentProjectChange}
-          projectList={projectList}
-          currentProject={currentProject}
+          handleCurrentProjectClear={handleCurrentProjectClear}
         />
       </React.Fragment>
     );

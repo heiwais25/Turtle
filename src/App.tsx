@@ -8,7 +8,6 @@ import { ThemeProvider } from "@material-ui/styles";
 import "./App.css";
 
 // Color pallete referencing https://colorhunt.co/palette/22272
-
 const theme = createMuiTheme({
   palette: {
     primary: {
