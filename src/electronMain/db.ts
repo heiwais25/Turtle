@@ -45,13 +45,9 @@ class DatabaseService {
     };
   }
 
-  public async getProjectById(id: ProjectDBData["_id"]) {
-    return await this.findById<ProjectDBData>("projects", id);
-  }
-
-  public async getProjectAllList(): Promise<ProjectDBData[]> {
-    return await this.getAllUndeletedList<ProjectDBData>("projects");
-  }
+  // ========================================================================
+  // Project handle functions
+  // ========================================================================
 
   public async createProject(formData: {
     name: ProjectDBData["name"];
@@ -62,6 +58,14 @@ class DatabaseService {
       isDeleted: false
     };
     return await this.createItem<ProjectDBData>("projects", query);
+  }
+
+  public async getProjectById(id: ProjectDBData["_id"]) {
+    return await this.findById<ProjectDBData>("projects", id);
+  }
+
+  public async getProjectAllList(): Promise<ProjectDBData[]> {
+    return await this.getAllUndeletedList<ProjectDBData>("projects");
   }
 
   public async updateProject(formData: ProjectDBUpdateQueryData) {
@@ -75,38 +79,6 @@ class DatabaseService {
         return this.updateItem<ProjectDBData>("projects", extra);
       })
     );
-  }
-
-  /**
-   * Change the order of two project which will be used as a input
-   */
-  public async changeProjectOrder(
-    projectA: ProjectDBData,
-    projectB: ProjectDBData
-  ) {
-    // 큰 order의 data를 찾는다.
-    const largeIdxProject =
-      projectA.order < projectB.order ? projectB : projectA;
-    const smallIdxProject =
-      largeIdxProject.order === projectA.order ? projectB : projectA;
-
-    const smallOrder = smallIdxProject.order;
-    const largeOrder = largeIdxProject.order;
-
-    // It will swap order
-
-    // 넣기 전, 작은 order <= order < 큰 order 사이의 order를 증가
-    await this.findAndUpdate(
-      "projects",
-      { order: { $gte: smallOrder, $lt: largeOrder } },
-      { $inc: { order: 1 } }
-    );
-
-    // 작은 order를 큰 order의 데이터에 넣는다.
-    largeIdxProject.order = smallOrder;
-    const { updatedAt, ...extra } = largeIdxProject;
-    await this.updateItem<ProjectDBData>("projects", extra);
-    return [smallOrder, largeOrder];
   }
 
   public async deleteProject(project: ProjectDBData) {

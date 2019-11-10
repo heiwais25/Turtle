@@ -29,13 +29,6 @@ const deleteProjectAPI = (project: ProjectDBData, cb?: Function) => {
   });
 };
 
-const changeProjectOderAPI = (
-  projectA: ProjectDBData,
-  projectB: ProjectDBData
-) => {
-  return db.changeProjectOrder(projectA, projectB);
-};
-
 export const setCurrentProject = createAction(
   ActionTypes.SET_CURRENT_PROJECT_INDEX,
   ({ currentProject }: { currentProject?: ProjectListItemData }) => ({
@@ -51,11 +44,6 @@ export const createProject = createAction(
 export const updateProject = createAction(
   ActionTypes.UPDATE_PROJECT,
   updateProjectAPI
-);
-
-export const changeProjectOrder = createAction(
-  ActionTypes.CHANGE_PROJECT_ORDER,
-  changeProjectOderAPI
 );
 
 export const deleteProject = createAction(

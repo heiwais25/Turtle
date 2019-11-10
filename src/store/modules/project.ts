@@ -99,20 +99,25 @@ export default handleActions<State>(
       type: ActionTypes.DELETE_PROJECT,
       onSuccess: (state, action: Action<string>) => {
         const id = action.payload;
+        const deletedIndex = state.projectList.findIndex(
+          item => item._id === id
+        );
+        const deletedOrder = state.projectList[deletedIndex].order;
+
+        const updatedProjectList = state.projectList
+          .slice(deletedIndex + 1)
+          .map((project, idx) => {
+            project.order = deletedOrder + idx;
+            return project;
+          });
         return produce(state, draft => {
-          const index = draft.projectList.findIndex(item => item._id === id);
-          if (index !== -1) {
-            const deletedOrder = draft.projectList[index].order;
-            draft.projectList.splice(index, 1);
-            draft.projectList
-              .filter(project => project.order > deletedOrder)
-              .forEach((item, idx, arr) => {
-                const newObject: ProjectDBData = JSON.parse(
-                  JSON.stringify(item)
-                );
-                newObject.order = deletedOrder + idx;
-                arr[idx] = newObject;
-              });
+          if (deletedIndex !== -1) {
+            // Splice deleted deletedIndex
+            draft.projectList.splice(deletedIndex, 1);
+
+            for (let i = deletedIndex; i < draft.projectList.length; ++i) {
+              draft.projectList[i] = updatedProjectList[i - deletedIndex];
+            }
           }
         });
       }
