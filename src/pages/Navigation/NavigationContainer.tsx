@@ -3,6 +3,7 @@ import Navigation from "./Navigation";
 import { connect } from "react-redux";
 import { StoreState } from "store/modules";
 import * as projectActions from "actions/project";
+import * as taskActions from "actions/task";
 import { bindActionCreators } from "redux";
 import { ProjectListItemData } from "store/modules/project";
 import { ProjectDBUpdateQueryData } from "interfaces/project";
@@ -12,11 +13,13 @@ type State = {};
 
 type ReduxStateProps = {
   projectList: ProjectListItemData[];
+  // groupedTaskList: StoreState["task"]["groupedTaskList"];
   currentProject?: ProjectListItemData;
 };
 
 type ReduxDispatchProps = {
   ProjectActions: typeof projectActions;
+  TaskActions: typeof taskActions;
 };
 
 type Props = {} & ReduxStateProps & ReduxDispatchProps;
@@ -47,7 +50,6 @@ class NavigationContainer extends React.Component<Props, State> {
     const changedProjectList = projectList.filter(
       (project, idx) => project.order !== previousProjectlist[idx].order
     );
-    // console.log(changedProjectList);
 
     ProjectActions.setProjectList({ projectList });
     ProjectActions.updateProjectList(changedProjectList);
@@ -55,19 +57,17 @@ class NavigationContainer extends React.Component<Props, State> {
 
   handleProjectDelete = (editingProject: ProjectListItemData) => {
     const { ProjectActions } = this.props;
-    ProjectActions.deleteProject(editingProject, () => {
-      this.handleCurrentProjectClear();
-    });
+    const cb = () => {
+      this.handleCurrentProjectChange();
+    };
+
+    ProjectActions.deleteProject(editingProject, cb);
   };
 
-  handleCurrentProjectChange = (project: ProjectListItemData) => {
-    const { ProjectActions } = this.props;
+  handleCurrentProjectChange = (project?: ProjectListItemData) => {
+    const { ProjectActions, TaskActions } = this.props;
     ProjectActions.setCurrentProject({ currentProject: project });
-  };
-
-  handleCurrentProjectClear = () => {
-    const { ProjectActions } = this.props;
-    ProjectActions.setCurrentProject({});
+    TaskActions.getTaskList(project ? project._id : undefined);
   };
 
   render() {
@@ -75,11 +75,10 @@ class NavigationContainer extends React.Component<Props, State> {
       handleSetProjectList,
       handleProjectUpdate,
       handleProjectDelete,
-      handleCurrentProjectChange,
-      handleCurrentProjectClear
+      handleCurrentProjectChange
     } = this;
     const { projectList, currentProject } = this.props;
-
+    console.log("here");
     return (
       <React.Fragment>
         <Navigation
@@ -89,7 +88,6 @@ class NavigationContainer extends React.Component<Props, State> {
           handleProjectUpdate={handleProjectUpdate}
           handleProjectDelete={handleProjectDelete}
           handleCurrentProjectChange={handleCurrentProjectChange}
-          handleCurrentProjectClear={handleCurrentProjectClear}
         />
       </React.Fragment>
     );
@@ -100,8 +98,10 @@ export default connect(
   (state: StoreState) => ({
     projectList: state.project.projectList,
     currentProject: state.project.currentProject
+    // groupedTaskList: state.task.groupedTaskList
   }),
   dispatch => ({
-    ProjectActions: bindActionCreators(projectActions, dispatch)
+    ProjectActions: bindActionCreators(projectActions, dispatch),
+    TaskActions: bindActionCreators(taskActions, dispatch)
   })
 )(NavigationContainer);

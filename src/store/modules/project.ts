@@ -1,9 +1,8 @@
 import { handleActions, Action } from "redux-actions";
 import * as ActionTypes from "constants/projectActionTypes";
-import produce, { immerable } from "immer";
+import produce from "immer";
 import { pender } from "redux-pender/lib/utils";
 import { ProjectDBData } from "interfaces/project";
-import isEqual from "react-fast-compare";
 
 export type ProjectListItemData = ProjectDBData;
 
@@ -40,22 +39,21 @@ export default handleActions<State>(
         draft.projectList = projectList;
       });
     },
-    // [ActionTypes.CREATE_PROJECT]: (state, action) => {
-    //   const { projectName } = action.payload;
-    //   return produce(state, draft => {
-    //     draft.projectList.push({
-    //       name: projectName,
-    //       isDefault: false
-    //     });
-    //   });
-    // },
-
     ...pender({
       type: ActionTypes.CREATE_PROJECT,
       onSuccess: (state, action: Action<ProjectDBData>) => {
         const project = action.payload;
         return produce(state, draft => {
           draft.projectList.push(project);
+        });
+      }
+    }),
+    ...pender({
+      type: ActionTypes.GET_PROJECT_LIST_LOCAL,
+      onSuccess: (state, action: Action<ProjectDBData[]>) => {
+        const projectList = action.payload;
+        return produce(state, draft => {
+          draft.projectList = projectList;
         });
       }
     }),
@@ -97,28 +95,20 @@ export default handleActions<State>(
     }),
     ...pender({
       type: ActionTypes.DELETE_PROJECT,
-      onSuccess: (state, action: Action<string>) => {
-        const id = action.payload;
+      onSuccess: (state, action: Action<ProjectDBData>) => {
+        const deletedProject = action.payload;
+        const projectList = state.projectList.slice();
         const deletedIndex = state.projectList.findIndex(
-          item => item._id === id
+          item => item._id === deletedProject._id
         );
-        const deletedOrder = state.projectList[deletedIndex].order;
 
-        const updatedProjectList = state.projectList
-          .slice(deletedIndex + 1)
-          .map((project, idx) => {
-            project.order = deletedOrder + idx;
-            return project;
-          });
+        if (deletedIndex >= 0) {
+          projectList.splice(deletedIndex, 1);
+          projectList.forEach((item, idx) => (item.order = idx));
+        }
+
         return produce(state, draft => {
-          if (deletedIndex !== -1) {
-            // Splice deleted deletedIndex
-            draft.projectList.splice(deletedIndex, 1);
-
-            for (let i = deletedIndex; i < draft.projectList.length; ++i) {
-              draft.projectList[i] = updatedProjectList[i - deletedIndex];
-            }
-          }
+          draft.projectList = projectList;
         });
       }
     })

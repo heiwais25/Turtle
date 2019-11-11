@@ -1,6 +1,6 @@
 import React from "react";
 import { CssBaseline } from "@material-ui/core";
-import { NavigationContainer, MainContainer } from "pages";
+import { NavigationContainer, MainContainer, TaskDetailContainer } from "pages";
 import { Route, Switch } from "react-router-dom";
 
 const Router = () => {
@@ -11,6 +11,7 @@ const Router = () => {
         <NavigationContainer />
         <Switch>
           <Route path="/" component={MainContainer} />
+          <Route path="/detail" component={TaskDetailContainer} />
         </Switch>
       </div>
     </React.Fragment>

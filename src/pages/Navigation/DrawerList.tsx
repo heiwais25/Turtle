@@ -1,5 +1,12 @@
 import React from "react";
-import { Divider, List, ListItem, ListItemIcon, Box } from "@material-ui/core";
+import {
+  Divider,
+  List,
+  ListItem,
+  ListItemIcon,
+  Box,
+  ListItemText
+} from "@material-ui/core";
 import _ from "lodash";
 import AddIcon from "@material-ui/icons/Add";
 import { ProjectListItemData } from "store/modules/project";
@@ -147,7 +154,9 @@ const DrawerList: React.FC<Props> = ({
         onClick={handleCurrentProjectClear}
         selected={!currentProject}
       >
-        <Box fontSize="1rem">All Projects</Box>
+        <ListItemText>
+          <Box fontSize="0.9rem">All Projects</Box>
+        </ListItemText>
       </ListItem>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable">
@@ -208,7 +217,9 @@ const DrawerList: React.FC<Props> = ({
         <ListItemIcon>
           <AddIcon />
         </ListItemIcon>
-        <Box fontSize="1rem">Add New Project</Box>
+        <ListItemText>
+          <Box fontSize="0.9rem">Add New Project</Box>
+        </ListItemText>
       </ListItem>
       <ProjectUpdateDialog
         open={dialogOpen}

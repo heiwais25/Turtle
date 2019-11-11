@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { StoreState } from "store/modules";
 import * as projectActions from "actions/project";
-import db from "store/db";
+import * as taskActions from "actions/task";
 
 type State = {};
 
@@ -12,6 +12,7 @@ type ReduxStateProps = {};
 
 type ReduxDispatchProps = {
   ProjectActions: typeof projectActions;
+  TaskActions: typeof taskActions;
 };
 
 type Props = {} & ReduxStateProps & ReduxDispatchProps;
@@ -23,10 +24,9 @@ class RouterContainer extends React.Component<Props, State> {
   }
 
   initStore() {
-    const { ProjectActions } = this.props;
-    db.getProjectAllList().then(projectList => {
-      ProjectActions.setProjectList({ projectList });
-    });
+    const { ProjectActions, TaskActions } = this.props;
+    ProjectActions.getProjectList();
+    TaskActions.getTaskList(undefined);
   }
 
   render() {
@@ -40,6 +40,7 @@ export default connect(
     currentProject: state.project.currentProject
   }),
   dispatch => ({
-    ProjectActions: bindActionCreators(projectActions, dispatch)
+    ProjectActions: bindActionCreators(projectActions, dispatch),
+    TaskActions: bindActionCreators(taskActions, dispatch)
   })
 )(RouterContainer);

@@ -21,7 +21,6 @@ import {
 } from "@material-ui/core/styles";
 import { ProjectListItemData } from "store/modules/project";
 import DrawerList from "./DrawerList";
-import { ProjectDBData } from "../../interfaces/project";
 
 const drawerWidth = 240;
 
@@ -41,9 +40,6 @@ const useStyles = makeStyles((theme: Theme) =>
       fontWeight: 500,
       flexGrow: 1,
       display: "block"
-      // [theme.breakpoints.up("sm")]: {
-      //   display: "block"
-      // }
     },
     appBar: {
       marginLeft: drawerWidth,
@@ -87,6 +83,7 @@ const useStyles = makeStyles((theme: Theme) =>
     drawerListItem: {
       letterSpacing: 1,
       padding: 0,
+      fontSize: "1rem",
       height: "40px",
       position: "relative",
       "& button": {
@@ -167,8 +164,7 @@ type Props = {
     editingProject?: ProjectListItemData
   ) => void;
   handleProjectDelete: (project: ProjectListItemData) => void;
-  handleCurrentProjectChange: (project: ProjectListItemData) => void;
-  handleCurrentProjectClear: () => void;
+  handleCurrentProjectChange: (project?: ProjectListItemData) => void;
   projectList: ProjectListItemData[];
   currentProject?: ProjectListItemData;
 };
@@ -178,7 +174,6 @@ const Navigation: React.FC<Props> = ({
   handleProjectUpdate,
   handleProjectDelete,
   handleCurrentProjectChange,
-  handleCurrentProjectClear,
   projectList,
   currentProject
 }) => {
@@ -208,9 +203,9 @@ const Navigation: React.FC<Props> = ({
   );
 
   const handleCurrentProjectClearSet = React.useCallback(() => {
-    handleCurrentProjectClear();
+    handleCurrentProjectChange();
     setMobileOpen(false);
-  }, [handleCurrentProjectClear, setMobileOpen]);
+  }, [handleCurrentProjectChange, setMobileOpen]);
 
   const drawer = (
     <DrawerList
