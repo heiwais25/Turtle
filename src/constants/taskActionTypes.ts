@@ -1,0 +1,9 @@
+export const GET_TASK_LIST_LOCAL = "task/GET_TASK_LIST_LOCAL";
+export const GET_TASK_LIST_REMOTE = "task/GET_TASK_LIST_REMOTE";
+export const CREATE_TASK = "task/CREATE_TASK";
+export const UPDATE_TASK = "task/UPDATE_TASK";
+export const UPDATE_TASK_LIST = "task/UPDATE_TASK_LIST";
+export const DELETE_TASK = "task/DELETE_TASK";
+export const SET_CURRENT_TASK_INDEX = "task/SET_CURRENT_TASK_INDEX";
+export const SET_GROUPED_TASK_LIST = "task/SET_GROUPED_TASK_LIST";
+export const CHANGE_TASK_ORDER = "task/CHANGE_TASK_ORDER";

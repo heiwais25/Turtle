@@ -1,9 +1,6 @@
 import { createAction } from "redux-actions";
 import * as ActionTypes from "constants/projectActionTypes";
-import {
-  ProjectDispatchData,
-  ProjectListItemData
-} from "store/modules/project";
+import { ProjectListItemData } from "store/modules/project";
 import { ProjectDBData, ProjectDBUpdateQueryData } from "interfaces/project";
 import db from "store/db";
 
@@ -16,6 +13,10 @@ const createProjectAPI = (
 
 const updateProjectAPI = (formData: ProjectDBUpdateQueryData) => {
   return db.updateProject(formData);
+};
+
+const getProjectListAPI = () => {
+  return db.getProjectAllList();
 };
 
 const updateProjectListAPI = (projectList: ProjectDBData[]) => {
@@ -39,6 +40,11 @@ export const setCurrentProject = createAction(
 export const createProject = createAction(
   ActionTypes.CREATE_PROJECT,
   createProjectAPI
+);
+
+export const getProjectList = createAction(
+  ActionTypes.GET_PROJECT_LIST_LOCAL,
+  getProjectListAPI
 );
 
 export const updateProject = createAction(

@@ -1,10 +1,12 @@
+export type ProcessTypes = "toDo" | "doing" | "done";
+
 export type TaskDBData = {
   _id: string;
   name: string;
   order: number;
   projectId?: string;
   description?: string;
-  process: "todo" | "doing" | "done";
+  process: ProcessTypes;
   isDeleted: boolean;
   dueAt?: Date;
   createdAt: Date;
@@ -20,10 +22,17 @@ export type SubTaskDBData = {
   isFinished: boolean;
 };
 
+export type TaskDBCreateFormData = {
+  name: TaskDBData["name"];
+  order: TaskDBData["order"];
+  projectId?: TaskDBData["projectId"];
+  process: TaskDBData["process"];
+};
+
 export type TaskDBCreateQueryData = {
   name: TaskDBData["name"];
   order: TaskDBData["order"];
-  projectId: TaskDBData["projectId"];
+  projectId?: TaskDBData["projectId"];
   process: TaskDBData["process"];
   isDeleted: TaskDBData["isDeleted"];
 };
@@ -49,4 +58,9 @@ export type SubTaskDBUpdateQueryData = {
   name?: SubTaskDBData["name"];
   order?: SubTaskDBData["order"];
   isFinished?: SubTaskDBData["isFinished"];
+};
+
+export type FindTaskQueryData = {
+  isDeleted: TaskDBData["isDeleted"];
+  projectId?: TaskDBData["projectId"];
 };

@@ -1,9 +1,8 @@
 import React from "react";
-import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 import {
-  IconButton,
   ListItem,
   Box,
+  Grid,
   Menu,
   MenuItem,
   ListItemIcon,
@@ -23,6 +22,11 @@ type DrawlerListItemProps = {
   handleCurrentProjectChange: (project: ProjectListItemData) => void;
 };
 
+const initialState = {
+  mouseX: null,
+  mouseY: null
+};
+
 const DrawlerListItem: React.FC<DrawlerListItemProps> = ({
   classes,
   project,
@@ -31,14 +35,27 @@ const DrawlerListItem: React.FC<DrawlerListItemProps> = ({
   handleDeleteDialogOpen,
   handleCurrentProjectChange
 }) => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
+  const [state, setState] = React.useState<{
+    mouseX: null | number;
+    mouseY: null | number;
+  }>(initialState);
+
+  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!state.mouseY) {
+      handleCurrentProjectChange(project);
+      setState({
+        mouseX: event.clientX - 2,
+        mouseY: event.clientY - 4
+      });
+    } else {
+      setState(initialState);
+    }
     event.stopPropagation();
+    event.preventDefault();
   };
 
   const handleClose = () => {
-    setAnchorEl(null);
+    setState(initialState);
   };
 
   const handleEditButtonClick = () => {
@@ -55,46 +72,57 @@ const DrawlerListItem: React.FC<DrawlerListItemProps> = ({
     handleCurrentProjectChange(project);
   };
 
-  return (
-    <ListItem
-      button
-      dense
-      className={classes.drawerListItem}
-      key={project.name}
-      onClick={handleListItemClick}
-      selected={selected}
+  const menu = (
+    <Menu
+      id="simple-menu"
+      keepMounted
+      anchorReference="anchorPosition"
+      open={state.mouseY !== null}
+      onClose={handleClose}
+      onExiting={() => console.log("here")}
+      classes={{
+        paper: classes.anchorMenuPaper
+      }}
+      className={classes.drawerMenu}
+      anchorPosition={
+        state.mouseY !== null && state.mouseX !== null
+          ? { top: state.mouseY, left: state.mouseX }
+          : undefined
+      }
     >
-      <Box paddingLeft={2} fontSize={"1rem"}>
-        {project.name}
-      </Box>
-      <IconButton onClick={handleClick}>
-        <MoreHorizIcon fontSize="small" />
-      </IconButton>
-      <Menu
-        id="simple-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        classes={{
-          paper: classes.anchorMenuPaper
-        }}
-        className={classes.drawerMenu}
+      <MenuItem onClick={handleEditButtonClick}>
+        <ListItemIcon>
+          <EditIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="Edit" />
+      </MenuItem>
+      <MenuItem onClick={handleDeleteButtonClick}>
+        <ListItemIcon>
+          <DeleteIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary="Delete" />
+      </MenuItem>
+    </Menu>
+  );
+
+  return (
+    <Grid container onContextMenu={handleContextMenu}>
+      <ListItem
+        button
+        dense
+        className={classes.drawerListItem}
+        key={project.name}
+        onClick={handleListItemClick}
+        selected={selected}
       >
-        <MenuItem onClick={handleEditButtonClick}>
-          <ListItemIcon>
-            <EditIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Edit" />
-        </MenuItem>
-        <MenuItem onClick={handleDeleteButtonClick}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Delete" />
-        </MenuItem>
-      </Menu>
-    </ListItem>
+        <ListItemText>
+          <Box paddingLeft={2} fontSize="0.9rem">
+            {project.name}
+          </Box>
+        </ListItemText>
+      </ListItem>
+      {menu}
+    </Grid>
   );
 };
 

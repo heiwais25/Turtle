@@ -10,7 +10,6 @@ import "electron-reload";
 
 let mainWindow: electron.BrowserWindow | null;
 function createWindow() {
-  console.log(path.join(__dirname, "./preload.js"));
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,

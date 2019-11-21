@@ -5,7 +5,8 @@ import {
   TaskDBCreateQueryData,
   TaskDBUpdateQueryData,
   SubTaskDBCreateQueryData,
-  SubTaskDBUpdateQueryData
+  SubTaskDBUpdateQueryData,
+  TaskDBCreateFormData
 } from "../interfaces/task";
 import {
   ProjectDBData,
@@ -13,11 +14,15 @@ import {
   ProjectDBUpdateQueryData
 } from "../interfaces/project";
 import path from "path";
-import { reject } from "q";
+import { FindTaskQueryData } from "../interfaces/task";
 
 /**
  * DB Wrapper handling task and project
  */
+
+async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 type DBNameData = "tasks" | "projects";
 class DatabaseService {
@@ -85,6 +90,13 @@ class DatabaseService {
     // 1. 삭제
     await this.deleteById("projects", project._id);
 
+    const findQuery = {
+      projectId: project._id
+    };
+
+    // 관련 Task도 삭제
+    await this.delete("tasks", findQuery);
+
     // 2. 현재 id 보다 낮은 모든 항들에 대해 order - 1
     await this.findAndUpdate(
       "projects",
@@ -92,23 +104,33 @@ class DatabaseService {
       { $inc: { order: -1 } }
     );
 
-    return project._id;
+    return project;
   }
+
+  // =========================================================================
+  // Task Related functions
 
   public async getTaskById(id: TaskDBData["_id"]) {
     return await this.findById<TaskDBData>("tasks", id);
   }
 
-  public async getTaskList() {
+  public async getTaskList(projectId?: string) {
+    const query: FindTaskQueryData = {
+      isDeleted: false
+    };
+    if (projectId) {
+      query.projectId = projectId;
+    }
+    const sortQuery = { order: 1, updatedAt: -1 };
+
+    return await this.find<TaskDBData>("tasks", query, sortQuery);
+  }
+
+  public async getTaskAllList(): Promise<ProjectDBData[]> {
     return await this.getAllUndeletedList<TaskDBData>("tasks");
   }
 
-  public async createTask(formData: {
-    name: TaskDBData["name"];
-    order: TaskDBData["order"];
-    projectId: TaskDBData["projectId"];
-    process: TaskDBData["process"];
-  }) {
+  public async createTask(formData: TaskDBCreateFormData) {
     const query: TaskDBCreateQueryData = {
       ...formData,
       isDeleted: false
@@ -119,6 +141,29 @@ class DatabaseService {
 
   public async updateTask(formData: TaskDBUpdateQueryData) {
     return await this.updateItem("tasks", formData);
+  }
+
+  public async updateTaskList(taskList: TaskDBData[]) {
+    return await Promise.all(
+      taskList.map(task => {
+        const { updatedAt, ...extra } = task;
+        return this.updateItem<TaskDBData>("tasks", extra);
+      })
+    );
+  }
+
+  public async deleteTask(task: TaskDBData) {
+    // 1. 삭제
+    await this.deleteById("tasks", task._id);
+
+    // 2. 현재 id 보다 같은 process에서, 낮은 모든 항들에 대해 order - 1
+    await this.findAndUpdate(
+      "tasks",
+      { order: { $gt: task.order }, process: task.process },
+      { $inc: { order: -1 } }
+    );
+
+    return task;
   }
 
   public async deleteTaskById(id: TaskDBData["_id"]) {
@@ -217,14 +262,26 @@ class DatabaseService {
     });
   }
 
-  private find<T>(dbName: DBNameData, findQuery: unknown) {
+  private find<T>(dbName: DBNameData, findQuery: unknown, sortQuery?: unknown) {
     return new Promise<T[]>((resolve, reject) => {
-      this._db[dbName].find(findQuery, (err: Error, docs: T[]) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(docs);
-      });
+      if (!sortQuery) {
+        this._db[dbName].find(findQuery, (err: Error, docs: T[]) => {
+          if (err) {
+            reject(err);
+          }
+          resolve(docs);
+        });
+      } else {
+        this._db[dbName]
+          .find(findQuery)
+          .sort(sortQuery)
+          .exec((err: Error, docs: T[]) => {
+            if (err) {
+              reject(err);
+            }
+            resolve(docs);
+          });
+      }
     });
   }
 
@@ -325,6 +382,17 @@ class DatabaseService {
           reject(err);
         }
         resolve(id);
+      });
+    });
+  };
+
+  private delete = (dbName: DBNameData, findQuery: unknown) => {
+    return new Promise<number>((resolve, reject) => {
+      this._db[dbName].remove(findQuery, { multi: true }, (err, numRemoved) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(numRemoved);
       });
     });
   };
