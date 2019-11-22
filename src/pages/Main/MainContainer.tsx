@@ -2,19 +2,23 @@ import React from "react";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import { StoreState } from "store/modules";
-import { TaskDBData, TaskDBCreateFormData } from "interfaces/task";
+import { TaskDBCreateFormData } from "electronMain/interfaces/task";
 import * as taskActions from "actions/task";
 import * as TaskActionTypes from "constants/taskActionTypes";
 import Main from "./Main";
 import { ITaskFormProps } from "./TaskListItem";
-import { getChangedTaskList } from "./Main.controller";
+import { IProject } from "../../interfaces/project";
+import { getChangedTaskList } from "./MainService";
+import { ITaskRecord, ITaskListGroupRecord } from "interfaces/task";
+import { DropResult } from "react-beautiful-dnd";
+import * as MainService from "./MainService";
 
 type State = {};
 
 type ReduxStateProps = {
-  groupedTaskList: StoreState["task"]["groupedTaskList"];
-  currentTask?: StoreState["task"]["currentTask"];
-  currentProject?: StoreState["project"]["currentProject"];
+  taskListGroup: ITaskListGroupRecord;
+  currentTask?: ITaskRecord;
+  currentProject?: IProject;
   loading: { [key: string]: boolean | undefined };
 };
 
@@ -40,30 +44,66 @@ class MainContainer extends React.Component<Props, State> {
     TaskActions.createTask(formData, cb);
   };
 
-  handleTaskUpdate = (newTask: TaskDBData, cb?: Function) => {
-    const { TaskActions } = this.props;
-    TaskActions.updateTask(newTask, cb);
-  };
+  handleTaskUpdate = (newTask: ITaskRecord, cb?: Function) => {
+    const { TaskActions, taskListGroup } = this.props;
 
-  handleTaskDelete = (task: TaskDBData, cb?: Function) => {
-    const { TaskActions } = this.props;
-    TaskActions.deleteTask(task, cb);
-  };
-
-  handleSetGroupedTaskList = (
-    groupedTaskList: StoreState["task"]["groupedTaskList"]
-  ) => {
-    const {
-      TaskActions,
-      groupedTaskList: previousGroupedTasklist
-    } = this.props;
-    const changedTaskList = getChangedTaskList(
-      groupedTaskList,
-      previousGroupedTasklist
+    const index = taskListGroup[newTask.process].findIndex(
+      item => item._id === newTask._id
     );
 
-    TaskActions.setGroupedTaskList({ groupedTaskList });
-    TaskActions.updateTaskList(changedTaskList);
+    if (index < 0) {
+      return;
+    }
+
+    TaskActions.updateTask(newTask.toJS(), cb);
+  };
+
+  handleTaskDelete = (task: ITaskRecord, cb?: Function) => {
+    const { TaskActions } = this.props;
+    TaskActions.deleteTask(task.toJS(), cb);
+  };
+
+  /**
+   * Process when the item of task list has changed.
+   * The main action inducing this function is like these.
+   * 1. Reorder item (within same process)
+   * 2. Move item (between two processes)
+   * 3. Toggle the checkbox (finish/unfinish task)
+   *
+   * @memberof MainContainer
+   */
+  handleGroupedTaskListChange = (taskListGroup: ITaskListGroupRecord) => {
+    const { TaskActions, taskListGroup: previousGroupedTasklist } = this.props;
+    const changedTaskList = getChangedTaskList(
+      taskListGroup,
+      previousGroupedTasklist
+    );
+    TaskActions.updateTaskListGroup({ taskListGroup });
+    TaskActions.updateTaskList(changedTaskList.toJS());
+  };
+
+  handleTaskDragEnd = (result: DropResult) => {
+    const { taskListGroup } = this.props;
+
+    if (!result.destination) {
+      return;
+    }
+    const newGroupedTaskList = MainService.processDragEnd(
+      result.source,
+      result.destination,
+      taskListGroup
+    );
+    this.handleGroupedTaskListChange(newGroupedTaskList);
+  };
+
+  handleTaskToggle = (updatedTask: ITaskRecord) => {
+    const { taskListGroup } = this.props;
+
+    const newGroupedTaskList = MainService.processToggle(
+      updatedTask,
+      taskListGroup
+    );
+    this.handleGroupedTaskListChange(newGroupedTaskList);
   };
 
   render() {
@@ -71,9 +111,10 @@ class MainContainer extends React.Component<Props, State> {
       handleTaskCreate,
       handleTaskUpdate,
       handleTaskDelete,
-      handleSetGroupedTaskList
+      handleTaskDragEnd,
+      handleTaskToggle
     } = this;
-    const { groupedTaskList, loading } = this.props;
+    const { taskListGroup, loading } = this.props;
 
     const fetchTaskLoading =
       loading[TaskActionTypes.GET_TASK_LIST_LOCAL] || false;
@@ -84,8 +125,9 @@ class MainContainer extends React.Component<Props, State> {
           handleTaskCreate={handleTaskCreate}
           handleTaskUpdate={handleTaskUpdate}
           handleTaskDelete={handleTaskDelete}
-          handleSetGroupedTaskList={handleSetGroupedTaskList}
-          groupedTaskList={groupedTaskList}
+          handleTaskDragEnd={handleTaskDragEnd}
+          handleTaskToggle={handleTaskToggle}
+          taskListGroup={taskListGroup}
           fetchTaskLoading={fetchTaskLoading}
         />
       </React.Fragment>
@@ -95,7 +137,7 @@ class MainContainer extends React.Component<Props, State> {
 
 export default connect(
   (state: StoreState) => ({
-    groupedTaskList: state.task.groupedTaskList,
+    taskListGroup: state.task.taskListGroup,
     currentTask: state.task.currentTask,
     currentProject: state.project.currentProject,
     loading: state.pender.pending

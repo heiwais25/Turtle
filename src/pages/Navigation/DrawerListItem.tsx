@@ -79,7 +79,6 @@ const DrawlerListItem: React.FC<DrawlerListItemProps> = ({
       anchorReference="anchorPosition"
       open={state.mouseY !== null}
       onClose={handleClose}
-      onExiting={() => console.log("here")}
       classes={{
         paper: classes.anchorMenuPaper
       }}

@@ -1,27 +1,14 @@
 import React from "react";
-import {
-  Grid,
-  List,
-  Box,
-  Paper,
-  ListItem,
-  ListItemText,
-  CircularProgress
-} from "@material-ui/core";
+import { Grid, Box, Paper, IconButton } from "@material-ui/core";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import TaskListItem, { ITaskFormProps } from "./TaskListItem";
-import { StoreState } from "store/modules";
-import { TaskDBData } from "interfaces/task";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSmile } from "@fortawesome/free-regular-svg-icons";
-import {
-  DragDropContext,
-  Droppable,
-  Draggable,
-  DropResult
-} from "react-beautiful-dnd";
-import { processDragEnd, getListStyle, getItemStyle } from "./Main.controller";
-import { ProcessTypes } from "../../interfaces/task";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import { ProcessTypes } from "../../electronMain/interfaces/task";
+import { ITaskListGroupRecord } from "interfaces/task";
+import { ITaskRecord } from "../../interfaces/task";
+import TaskList from "./TaskList";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -32,11 +19,16 @@ const useStyles = makeStyles((theme: Theme) =>
       backgroundColor: "rgba(243, 243, 243, 0.4);"
     },
     toolbar: theme.mixins.toolbar,
+
     taskListContainer: {
-      backgroundColor: "#5eb7af29",
-      padding: theme.spacing(0, 0.5),
+      backgroundColor: "#e5f5f3",
+      padding: theme.spacing(0.5),
+      paddingBottom: 0,
       marginTop: theme.spacing(1),
       borderRadius: "5px"
+    },
+    taskListTitle: {
+      "&:hover": {}
     },
     taskList: {
       padding: 0,
@@ -48,46 +40,55 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(0),
       fontSize: "1rem",
       height: "56px"
+    },
+    moreIcon: {
+      padding: theme.spacing(1),
+      "& svg": {
+        width: "18px",
+        height: "18px"
+      }
     }
   })
 );
 
 type IMainProps = {
-  groupedTaskList: StoreState["task"]["groupedTaskList"];
+  taskListGroup: ITaskListGroupRecord;
   fetchTaskLoading: boolean;
   handleTaskCreate: (formData: ITaskFormProps, cb?: Function) => void;
-  handleTaskUpdate: (newTask: TaskDBData, cb?: Function) => void;
-  handleTaskDelete: (task: TaskDBData, cb?: Function) => void;
-  handleSetGroupedTaskList: (
-    groupedTaskList: StoreState["task"]["groupedTaskList"]
-  ) => void;
+  handleTaskUpdate: (newTask: ITaskRecord, cb?: Function) => void;
+  handleTaskDelete: (task: ITaskRecord, cb?: Function) => void;
+  handleTaskToggle: (task: ITaskRecord) => void;
+  handleTaskDragEnd: (result: DropResult) => void;
 };
 
 const Main: React.FC<IMainProps> = ({
-  groupedTaskList,
+  taskListGroup,
   fetchTaskLoading,
   handleTaskCreate,
   handleTaskUpdate,
   handleTaskDelete,
-  handleSetGroupedTaskList
+  handleTaskDragEnd,
+  handleTaskToggle
 }) => {
   const classes = useStyles();
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) {
-      return;
-    }
-    const newGroupedTaskList = processDragEnd(
-      result.source,
-      result.destination,
-      groupedTaskList
-    );
-    handleSetGroupedTaskList(newGroupedTaskList);
-  };
 
   const listInfoList: { label: string; value: ProcessTypes }[] = [
     { label: "Doing", value: "doing" },
-    { label: "ToDo", value: "toDo" }
+    { label: "ToDo", value: "toDo" },
+    { label: "Done", value: "done" }
   ];
+
+  const [isExpandedList, setExpandedList] = React.useState<boolean[]>([
+    true,
+    true,
+    false
+  ]);
+  const handleExpandButtonToggle = (index: number) => {
+    const newIsExpandedList = isExpandedList.slice();
+    newIsExpandedList[index] = !newIsExpandedList[index];
+    setExpandedList(newIsExpandedList);
+  };
+
   return (
     <React.Fragment>
       <main className={classes.root}>
@@ -96,76 +97,49 @@ const Main: React.FC<IMainProps> = ({
           <TaskListItem handleTaskCreate={handleTaskCreate} />
         </Grid>
 
-        <DragDropContext onDragEnd={handleDragEnd}>
-          {listInfoList.map(listInfo => {
+        <DragDropContext onDragEnd={handleTaskDragEnd}>
+          {listInfoList.map((listInfo, index) => {
             return (
               <Paper
                 key={listInfo.value}
                 elevation={2}
                 className={classes.taskListContainer}
               >
-                <Box fontSize="1rem">{listInfo.label}</Box>
+                <Grid
+                  container
+                  justify="space-between"
+                  alignItems="center"
+                  className={classes.taskListTitle}
+                >
+                  <Box fontSize="1rem" p={1}>
+                    {listInfo.label}
+                  </Box>
+                  <IconButton
+                    className={classes.moreIcon}
+                    onClick={() => handleExpandButtonToggle(index)}
+                  >
+                    {isExpandedList[index] ? (
+                      <ExpandLessIcon fontSize="small" />
+                    ) : (
+                      <ExpandMoreIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                </Grid>
                 <Droppable droppableId={listInfo.value}>
                   {(provided, snapshot) => {
-                    const taskList = groupedTaskList[listInfo.value];
+                    const taskList = taskListGroup[listInfo.value];
                     return (
-                      <List
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className={classes.taskList}
-                        style={getListStyle(snapshot.isDraggingOver)}
-                      >
-                        {taskList.length === 0 ? (
-                          <div>
-                            <ListItem className={classes.textBox} dense>
-                              {fetchTaskLoading ? (
-                                <Grid container justify="center">
-                                  <CircularProgress />
-                                </Grid>
-                              ) : (
-                                <ListItemText>
-                                  <Box textAlign="center" fontSize="1rem">
-                                    {`No ${listInfo.label} Task `}
-                                    <FontAwesomeIcon icon={faSmile} />
-                                  </Box>
-                                </ListItemText>
-                              )}
-                            </ListItem>
-                          </div>
-                        ) : (
-                          <React.Fragment>
-                            {taskList.map((task, index) => {
-                              return (
-                                <Draggable
-                                  key={task._id}
-                                  draggableId={task._id}
-                                  index={index}
-                                >
-                                  {(provided, snapshot) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
-                                      style={getItemStyle(
-                                        snapshot.isDragging,
-                                        provided.draggableProps.style
-                                      )}
-                                    >
-                                      <TaskListItem
-                                        task={task}
-                                        key={task._id}
-                                        handleTaskUpdate={handleTaskUpdate}
-                                        handleTaskDelete={handleTaskDelete}
-                                      />
-                                    </div>
-                                  )}
-                                </Draggable>
-                              );
-                            })}
-                            {provided.placeholder}
-                          </React.Fragment>
-                        )}
-                      </List>
+                      <TaskList
+                        provided={provided}
+                        snapshot={snapshot}
+                        isExpanded={isExpandedList[index]}
+                        fetchTaskLoading={fetchTaskLoading}
+                        taskList={taskList}
+                        handleTaskToggle={handleTaskToggle}
+                        handleTaskUpdate={handleTaskUpdate}
+                        handleTaskDelete={handleTaskDelete}
+                        listInfo={listInfo}
+                      />
                     );
                   }}
                 </Droppable>

@@ -1,20 +1,3 @@
-export type ProjectDBData = {
-  _id: string;
-  name: string;
-  order: number;
-  isDeleted: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { ProjectDBData } from "electronMain/interfaces/project";
 
-export type ProjectDBCreateQueryData = {
-  name: ProjectDBData["name"];
-  order: ProjectDBData["order"];
-  isDeleted: ProjectDBData["isDeleted"];
-};
-
-export type ProjectDBUpdateQueryData = {
-  _id: string;
-  name?: ProjectDBData["name"];
-  order?: ProjectDBData["order"];
-};
+export interface IProject extends ProjectDBData {}

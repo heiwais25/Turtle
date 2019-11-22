@@ -2,7 +2,7 @@ import { handleActions, Action } from "redux-actions";
 import * as ActionTypes from "constants/projectActionTypes";
 import produce from "immer";
 import { pender } from "redux-pender/lib/utils";
-import { ProjectDBData } from "interfaces/project";
+import { ProjectDBData } from "electronMain/interfaces/project";
 
 export type ProjectListItemData = ProjectDBData;
 

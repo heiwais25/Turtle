@@ -17,8 +17,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import useForm from "react-hook-form";
 import classNames from "classnames";
 import AddIcon from "@material-ui/icons/Add";
-import { TaskDBData } from "interfaces/task";
-import isEqual from "react-fast-compare";
+import { ITask, ITaskRecord } from "interfaces/task";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -49,7 +48,12 @@ const useStyles = makeStyles((theme: Theme) =>
     editButton: {
       position: "absolute",
       right: 5,
-      display: "none"
+      display: "none",
+      padding: theme.spacing(1),
+      "& svg": {
+        width: "18px",
+        height: "18px"
+      }
     },
     form: {
       width: "100%"
@@ -79,6 +83,10 @@ const useStyles = makeStyles((theme: Theme) =>
       "& li": {
         minHeight: "36px"
       }
+    },
+    canceledText: {
+      textDecoration: "line-through !important",
+      color: "grey"
     }
   })
 );
@@ -87,7 +95,7 @@ type ITextFieldFormListItemProps = {
   classes: { [key: string]: string };
   onSubmit: (data: unknown, cb?: Function) => void;
   onBlur: () => void;
-  task?: TaskDBData;
+  task?: ITask;
 };
 
 const TextFieldFormListItem: React.FC<ITextFieldFormListItemProps> = ({
@@ -174,7 +182,7 @@ type IDisplayTextBoxLisItemProps = {
   ) => void;
   handleEditButtonClick: () => void;
   handleDeleteButtonClick: (cb?: Function) => void;
-  task: TaskDBData;
+  task: ITask;
 };
 
 const initialState = {
@@ -215,6 +223,8 @@ const DisplayTextBoxLisItem: React.FC<IDisplayTextBoxLisItemProps> = ({
     handleDeleteButtonClick(handleClose);
   };
 
+  const isChecked = task.process === "done";
+
   const menu = (
     <Menu
       id="simple-menu"
@@ -249,9 +259,15 @@ const DisplayTextBoxLisItem: React.FC<IDisplayTextBoxLisItemProps> = ({
 
   return (
     <Grid container onContextMenu={handleContextMenu}>
-      <ListItem button className={classes.textBox} dense>
+      <ListItem
+        button
+        className={classNames(classes.textBox, {
+          [classes.canceledText]: isChecked
+        })}
+        dense
+      >
         <ListItemIcon className={classes.checkbox}>
-          <Checkbox onClick={handleCheckboxToggle} />
+          <Checkbox onClick={handleCheckboxToggle} checked={isChecked} />
         </ListItemIcon>
         <ListItemText>
           <Box display="inline">{task.name}</Box>
@@ -274,14 +290,21 @@ export type ITaskFormProps = {
 };
 
 export interface IProps {
-  task?: TaskDBData;
+  task?: ITaskRecord;
+  handleToggle?: (updatedTask: ITaskRecord) => void;
   handleTaskCreate?: (formData: ITaskFormProps, cb?: Function) => void;
-  handleTaskUpdate?: (newTask: TaskDBData, cb?: Function) => void;
-  handleTaskDelete?: (task: TaskDBData, cb?: Function) => void;
+  handleTaskUpdate?: (newTask: ITaskRecord, cb?: Function) => void;
+  handleTaskDelete?: (task: ITaskRecord, cb?: Function) => void;
 }
 
 function TaskListItem(props: IProps) {
-  const { task, handleTaskCreate, handleTaskUpdate, handleTaskDelete } = props;
+  const {
+    task,
+    handleToggle,
+    handleTaskCreate,
+    handleTaskUpdate,
+    handleTaskDelete
+  } = props;
   const classes = useStyles();
   const [isEditMode, setEditMode] = React.useState(false);
 
@@ -300,21 +323,32 @@ function TaskListItem(props: IProps) {
   const handleCheckboxToggle = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
+    if (task && handleToggle) {
+      const prevProcess = task.process;
+      let newTask = task;
+      if (prevProcess === "done") {
+        newTask = task.set("process", "toDo");
+      } else {
+        newTask = task.set("process", "done");
+      }
+      handleToggle(newTask);
+    }
     event.stopPropagation();
   };
 
   const handleSubmit = (data: unknown, createCallback?: Function) => {
     const formData: ITaskFormProps = data as ITaskFormProps;
     if (handleTaskCreate) {
+      // Create
       handleTaskCreate(formData, () => {
         if (createCallback) createCallback();
       });
     } else if (task && handleTaskUpdate) {
-      task.name = formData.name;
-      handleTaskUpdate(task, () => handleEditTextfieldBlur());
+      // Update
+      const newTask = task.set("name", formData.name);
+      handleTaskUpdate(newTask, () => handleEditTextfieldBlur());
     }
   };
-  //   <AddIcon color="primary" className={classes.icon} />
 
   if (isEditMode) {
     return (
@@ -353,7 +387,7 @@ const isPropsEqual = (
   prevProps: Readonly<IProps>,
   nextProps: Readonly<IProps>
 ) => {
-  return isEqual(prevProps.task, nextProps.task);
+  return prevProps.task === nextProps.task;
 };
 
 export default React.memo(TaskListItem, isPropsEqual);
