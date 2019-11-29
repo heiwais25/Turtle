@@ -2,11 +2,11 @@ import { createAction } from "redux-actions";
 import * as ActionTypes from "constants/taskActionTypes";
 import {
   TaskDBCreateFormData,
-  TaskDBData,
+  ITaskDB,
   TaskDBUpdateQueryData
-} from "interfaces/task";
+} from "electronMain/interfaces/task";
 import db from "store/db";
-import { StoreState } from "../store/modules/index";
+import { ITaskListGroup } from "../interfaces/task";
 
 const createTaskAPI = (formData: TaskDBCreateFormData, cb?: Function) => {
   return db.createTask(formData).then(res => {
@@ -15,7 +15,7 @@ const createTaskAPI = (formData: TaskDBCreateFormData, cb?: Function) => {
   });
 };
 
-const getTaskListAPI = (projectId?: TaskDBData["projectId"]) => {
+const getTaskListAPI = (projectId?: ITaskDB["projectId"]) => {
   return db.getTaskList(projectId);
 };
 
@@ -26,11 +26,11 @@ const updateTaskAPI = (formData: TaskDBUpdateQueryData, cb?: Function) => {
   });
 };
 
-const updateTaskListAPI = (taskList: TaskDBData[]) => {
+const updateTaskListAPI = (taskList: ITaskDB[]) => {
   return db.updateTaskList(taskList);
 };
 
-const deleteTaskAPI = (task: TaskDBData, cb?: Function) => {
+const deleteTaskAPI = (task: ITaskDB, cb?: Function) => {
   return db.deleteTask(task).then(res => {
     if (cb) cb();
     return res;
@@ -39,7 +39,7 @@ const deleteTaskAPI = (task: TaskDBData, cb?: Function) => {
 
 export const setCurrentTask = createAction(
   ActionTypes.SET_CURRENT_TASK_INDEX,
-  ({ currentTask }: { currentTask?: TaskDBData }) => ({
+  ({ currentTask }: { currentTask?: ITaskDB }) => ({
     currentTask
   })
 );
@@ -55,13 +55,11 @@ export const updateTask = createAction(ActionTypes.UPDATE_TASK, updateTaskAPI);
 
 export const deleteTask = createAction(ActionTypes.DELETE_TASK, deleteTaskAPI);
 
-export const setGroupedTaskList = createAction(
-  ActionTypes.SET_GROUPED_TASK_LIST,
-  ({
-    groupedTaskList
-  }: {
-    groupedTaskList: StoreState["task"]["groupedTaskList"];
-  }) => ({ groupedTaskList })
+export const updateTaskListGroup = createAction(
+  ActionTypes.UPDATE_TASK_LIST_GROUP,
+  ({ taskListGroup }: { taskListGroup: ITaskListGroup }) => ({
+    taskListGroup
+  })
 );
 
 export const updateTaskList = createAction(

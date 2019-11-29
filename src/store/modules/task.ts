@@ -1,102 +1,86 @@
 import { handleActions, Action } from "redux-actions";
-import { TaskDBData } from "interfaces/task";
+import { ITaskDB } from "electronMain/interfaces/task";
 import { pender } from "redux-pender/lib/utils";
-import produce from "immer";
 import * as ActionTypes from "constants/taskActionTypes";
 import _ from "lodash";
+import { ITask, ITaskStateRecord } from "interfaces/task";
+import { TaskRecord, TaskStateRecord, TaskListGroupRecord } from "records/task";
+import { ITaskListGroup } from "../../interfaces/task";
 
-export type TaskState = {
-  groupedTaskList: {
-    toDo: TaskDBData[];
-    doing: TaskDBData[];
-    done: TaskDBData[];
-  };
-  currentTask?: TaskDBData;
-};
-
-const defaultTaskData: TaskState = {
-  groupedTaskList: {
-    toDo: [],
-    doing: [],
-    done: []
-  }
-};
-
-const initialState: TaskState = defaultTaskData;
-
-export default handleActions<TaskState>(
+export default handleActions<ITaskStateRecord>(
   {
-    [ActionTypes.SET_GROUPED_TASK_LIST]: (state, action) => {
-      const { groupedTaskList } = action.payload;
-      return produce(state, draft => {
-        draft.groupedTaskList = groupedTaskList;
-      });
+    [ActionTypes.UPDATE_TASK_LIST_GROUP]: (state, action) => {
+      const { taskListGroup } = action.payload;
+      return state.set("taskListGroup", taskListGroup);
     },
     ...pender({
       type: ActionTypes.CREATE_TASK,
-      onSuccess: (state, action: Action<TaskDBData>) => {
+      onSuccess: (state, action: Action<ITask>) => {
         const newTask = action.payload;
-        return produce(state, draft => {
-          draft.groupedTaskList[newTask.process].unshift(newTask);
-        });
+        return state.update("taskListGroup", taskListGroup =>
+          taskListGroup.set(
+            newTask.process,
+            taskListGroup[newTask.process].unshift(new TaskRecord(newTask))
+          )
+        );
       }
     }),
     ...pender({
       type: ActionTypes.UPDATE_TASK,
-      onSuccess: (state, action: Action<TaskDBData>) => {
+      onSuccess: (state, action: Action<ITask>) => {
         const updatedTask = action.payload;
-        const taskIdx = state.groupedTaskList[updatedTask.process].findIndex(
+        const { taskListGroup } = state;
+
+        // Find in the current task
+        const taskIdx = taskListGroup[updatedTask.process].findIndex(
           task => task._id === updatedTask._id
         );
-        return produce(state, draft => {
-          if (taskIdx >= 0) {
-            draft.groupedTaskList[updatedTask.process][taskIdx] = updatedTask;
-          }
-        });
+
+        if (taskIdx < 0) {
+          return state;
+        }
+
+        return state.setIn(
+          ["taskListGroup", updatedTask.process, taskIdx],
+          new TaskRecord(updatedTask)
+        );
       }
     }),
     ...pender({
       type: ActionTypes.GET_TASK_LIST_LOCAL,
       // It will group by it's process the raw list which was just list of task
-      onSuccess: (state, action: Action<TaskDBData[]>) => {
+      onSuccess: (state, action: Action<ITask[]>) => {
         const rawTaskList = action.payload;
-        const groupedTaskList = {
-          ...defaultTaskData.groupedTaskList,
-          ...(_.groupBy(rawTaskList, "process") as TaskState["groupedTaskList"])
-        };
-
-        return produce(state, draft => {
-          draft.groupedTaskList = groupedTaskList;
-        });
+        return state.set(
+          "taskListGroup",
+          new TaskListGroupRecord(
+            (_.groupBy(rawTaskList, "process") as unknown) as ITaskListGroup
+          )
+        );
       }
     }),
     ...pender({
       type: ActionTypes.DELETE_TASK,
       // It will group by it's process the raw list which was just list of task
-      onSuccess: (state, action: Action<TaskDBData>) => {
+      onSuccess: (state, action: Action<ITaskDB>) => {
         const deletedTask = action.payload;
-        const taskList = state.groupedTaskList[deletedTask.process].slice();
         // Get current idx
-        const deletedIdx = taskList.findIndex(
+        const deletedIdx = state.taskListGroup[deletedTask.process].findIndex(
           item => item._id === deletedTask._id
         );
 
-        if (deletedIdx >= 0) {
-          // delete from the list
-          taskList.splice(deletedIdx, 1);
-          taskList.forEach((task, idx) => {
-            task.order = idx;
-          });
+        if (deletedIdx < 0) {
+          return state;
         }
 
-        return {
-          ...state,
-          groupedTaskList: produce(state.groupedTaskList, draft => {
-            draft[deletedTask.process] = taskList;
-          })
-        };
+        return state.update("taskListGroup", taskListGroup =>
+          taskListGroup.set(
+            deletedTask.process,
+            taskListGroup[deletedTask.process].splice(deletedIdx, 1)
+          )
+        );
       }
     })
   },
-  initialState
+  new TaskStateRecord()
 );

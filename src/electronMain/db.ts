@@ -1,20 +1,20 @@
 import Datastore from "nedb";
 import {
-  TaskDBData,
-  SubTaskDBData,
+  ITaskDB,
+  ISubTaskDB,
   TaskDBCreateQueryData,
   TaskDBUpdateQueryData,
   SubTaskDBCreateQueryData,
   SubTaskDBUpdateQueryData,
   TaskDBCreateFormData
-} from "../interfaces/task";
+} from "./interfaces/task";
 import {
   ProjectDBData,
   ProjectDBCreateQueryData,
   ProjectDBUpdateQueryData
-} from "../interfaces/project";
+} from "./interfaces/project";
 import path from "path";
-import { FindTaskQueryData } from "../interfaces/task";
+import { FindTaskQueryData } from "./interfaces/task";
 
 /**
  * DB Wrapper handling task and project
@@ -110,8 +110,8 @@ class DatabaseService {
   // =========================================================================
   // Task Related functions
 
-  public async getTaskById(id: TaskDBData["_id"]) {
-    return await this.findById<TaskDBData>("tasks", id);
+  public async getTaskById(id: ITaskDB["_id"]) {
+    return await this.findById<ITaskDB>("tasks", id);
   }
 
   public async getTaskList(projectId?: string) {
@@ -123,11 +123,11 @@ class DatabaseService {
     }
     const sortQuery = { order: 1, updatedAt: -1 };
 
-    return await this.find<TaskDBData>("tasks", query, sortQuery);
+    return await this.find<ITaskDB>("tasks", query, sortQuery);
   }
 
   public async getTaskAllList(): Promise<ProjectDBData[]> {
-    return await this.getAllUndeletedList<TaskDBData>("tasks");
+    return await this.getAllUndeletedList<ITaskDB>("tasks");
   }
 
   public async createTask(formData: TaskDBCreateFormData) {
@@ -136,23 +136,23 @@ class DatabaseService {
       isDeleted: false
     };
 
-    return await this.createItem<TaskDBData>("tasks", query);
+    return await this.createItem<ITaskDB>("tasks", query);
   }
 
   public async updateTask(formData: TaskDBUpdateQueryData) {
     return await this.updateItem("tasks", formData);
   }
 
-  public async updateTaskList(taskList: TaskDBData[]) {
+  public async updateTaskList(taskList: ITaskDB[]) {
     return await Promise.all(
       taskList.map(task => {
         const { updatedAt, ...extra } = task;
-        return this.updateItem<TaskDBData>("tasks", extra);
+        return this.updateItem<ITaskDB>("tasks", extra);
       })
     );
   }
 
-  public async deleteTask(task: TaskDBData) {
+  public async deleteTask(task: ITaskDB) {
     // 1. 삭제
     await this.deleteById("tasks", task._id);
 
@@ -166,15 +166,15 @@ class DatabaseService {
     return task;
   }
 
-  public async deleteTaskById(id: TaskDBData["_id"]) {
+  public async deleteTaskById(id: ITaskDB["_id"]) {
     return await this.deleteById("tasks", id);
   }
 
   public async createSubTask(
-    taskId: TaskDBData["_id"],
+    taskId: ITaskDB["_id"],
     formData: {
-      name: SubTaskDBData["name"];
-      order: SubTaskDBData["order"];
+      name: ISubTaskDB["name"];
+      order: ISubTaskDB["order"];
     }
   ) {
     const query: SubTaskDBCreateQueryData = {
@@ -182,7 +182,7 @@ class DatabaseService {
       isFinished: false
     };
 
-    return await this.findOneAndUpdate<TaskDBData>(
+    return await this.findOneAndUpdate<ITaskDB>(
       "tasks",
       { _id: taskId },
       { $push: { subTaskList: query } }
@@ -190,7 +190,7 @@ class DatabaseService {
   }
 
   public async updateSubTask(
-    taskId: TaskDBData["_id"],
+    taskId: ITaskDB["_id"],
     formData: SubTaskDBUpdateQueryData
   ) {
     const query: { $set?: Object } = {};
@@ -211,7 +211,7 @@ class DatabaseService {
       };
     }
 
-    return await this.findOneAndUpdate<TaskDBData>(
+    return await this.findOneAndUpdate<ITaskDB>(
       "tasks",
       { _id: taskId, "subTaskList._id": formData._id },
       query
@@ -219,8 +219,8 @@ class DatabaseService {
   }
 
   public async deleteSubTask(
-    taskId: TaskDBData["_id"],
-    subTaskId: SubTaskDBData["_id"]
+    taskId: ITaskDB["_id"],
+    subTaskId: ISubTaskDB["_id"]
   ) {
     return new Promise<string>((resolve, reject) => {
       this._db.tasks.update(

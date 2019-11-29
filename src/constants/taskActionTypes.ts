@@ -5,5 +5,5 @@ export const UPDATE_TASK = "task/UPDATE_TASK";
 export const UPDATE_TASK_LIST = "task/UPDATE_TASK_LIST";
 export const DELETE_TASK = "task/DELETE_TASK";
 export const SET_CURRENT_TASK_INDEX = "task/SET_CURRENT_TASK_INDEX";
-export const SET_GROUPED_TASK_LIST = "task/SET_GROUPED_TASK_LIST";
+export const UPDATE_TASK_LIST_GROUP = "task/UPDATE_TASK_LIST_GROUP";
 export const CHANGE_TASK_ORDER = "task/CHANGE_TASK_ORDER";

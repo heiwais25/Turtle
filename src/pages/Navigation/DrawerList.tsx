@@ -13,7 +13,7 @@ import { ProjectListItemData } from "store/modules/project";
 import DrawerListItem from "./DrawerListItem";
 import { ProjectUpdateDialog } from "systems";
 import { CautionDialog } from "components";
-import { ProjectDBData } from "../../interfaces/project";
+import { ProjectDBData } from "../../electronMain/interfaces/project";
 import {
   DragDropContext,
   Droppable,

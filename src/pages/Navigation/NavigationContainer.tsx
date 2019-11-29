@@ -6,8 +6,8 @@ import * as projectActions from "actions/project";
 import * as taskActions from "actions/task";
 import { bindActionCreators } from "redux";
 import { ProjectListItemData } from "store/modules/project";
-import { ProjectDBUpdateQueryData } from "interfaces/project";
-import { ProjectDBData } from "../../interfaces/project";
+import { ProjectDBUpdateQueryData } from "electronMain/interfaces/project";
+import { ProjectDBData } from "../../electronMain/interfaces/project";
 
 type State = {};
 
@@ -78,7 +78,6 @@ class NavigationContainer extends React.Component<Props, State> {
       handleCurrentProjectChange
     } = this;
     const { projectList, currentProject } = this.props;
-    console.log("here");
     return (
       <React.Fragment>
         <Navigation

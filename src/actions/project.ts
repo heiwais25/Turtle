@@ -1,7 +1,10 @@
 import { createAction } from "redux-actions";
 import * as ActionTypes from "constants/projectActionTypes";
 import { ProjectListItemData } from "store/modules/project";
-import { ProjectDBData, ProjectDBUpdateQueryData } from "interfaces/project";
+import {
+  ProjectDBData,
+  ProjectDBUpdateQueryData
+} from "electronMain/interfaces/project";
 import db from "store/db";
 
 const createProjectAPI = (
