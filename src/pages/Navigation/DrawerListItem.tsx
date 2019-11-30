@@ -8,18 +8,17 @@ import {
   ListItemIcon,
   ListItemText
 } from "@material-ui/core";
-import { ProjectListItemData } from "store/modules/project";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-import isEqual from "react-fast-compare";
+import { IProjectRecord } from "interfaces/project";
 
 type DrawlerListItemProps = {
   classes: { [key: string]: string };
-  project: ProjectListItemData;
+  project: IProjectRecord;
   selected: boolean;
-  handleEditingProjectChange: (project: ProjectListItemData) => void;
-  handleDeleteDialogOpen: (project: ProjectListItemData) => void;
-  handleCurrentProjectChange: (project: ProjectListItemData) => void;
+  handleEditingProjectChange: (project: IProjectRecord) => void;
+  handleDeleteDialogOpen: (project: IProjectRecord) => void;
+  handleCurrentProjectChange: (project: IProjectRecord) => void;
 };
 
 const initialState = {
@@ -131,7 +130,7 @@ const isPropsEqual = (
 ) => {
   return (
     prevProps.selected === nextProps.selected &&
-    isEqual(prevProps.project, nextProps.project)
+    prevProps.project === nextProps.project
   );
 };
 

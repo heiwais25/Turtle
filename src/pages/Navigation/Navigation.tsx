@@ -1,11 +1,9 @@
 import React from "react";
 import MenuIcon from "@material-ui/icons/Menu";
 import SearchIcon from "@material-ui/icons/Search";
-import CancelIcon from "@material-ui/icons/Cancel";
 import TrendingUpIcon from "@material-ui/icons/TrendingUp";
 import SettingsIcon from "@material-ui/icons/Settings";
 import {
-  TextField,
   AppBar,
   Drawer,
   Hidden,
@@ -19,8 +17,11 @@ import {
   Theme,
   createStyles
 } from "@material-ui/core/styles";
-import { ProjectListItemData } from "store/modules/project";
+import { IProjectRecord, IProjectCreatePartialForm } from "interfaces/project";
+import { List } from "immutable";
+import { DropResult } from "react-beautiful-dnd";
 import DrawerList from "./DrawerList";
+import SearchBar from "./SearchBar";
 
 const drawerWidth = 240;
 
@@ -119,61 +120,22 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-type SearchBarProps = {
-  classes: { [key: string]: string };
-  handleSearchClose: () => void;
-};
-
-const SearchBar: React.FC<SearchBarProps> = React.memo(
-  ({ classes, handleSearchClose }) => {
-    const [searchText, setSearchText] = React.useState("");
-    const handleSearchTextChange = (
-      event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-      setSearchText(event.currentTarget.value);
-    };
-
-    const handleKeyboardEvent = (event: React.KeyboardEvent) => {
-      // Capture Escape
-      if (event.keyCode === 27) handleSearchClose();
-    };
-
-    return (
-      <React.Fragment>
-        <SearchIcon color="primary" className={classes.searchIcon} />
-        <TextField
-          autoFocus
-          fullWidth
-          placeholder="Search..."
-          value={searchText}
-          onChange={handleSearchTextChange}
-          onKeyDown={handleKeyboardEvent}
-        />
-        <IconButton onClick={handleSearchClose}>
-          <CancelIcon />
-        </IconButton>
-      </React.Fragment>
-    );
-  }
-);
-
 type Props = {
-  handleSetProjectList: (projectList: ProjectListItemData[]) => void;
-  handleProjectUpdate: (
-    projectName: string,
-    editingProject?: ProjectListItemData
-  ) => void;
-  handleProjectDelete: (project: ProjectListItemData) => void;
-  handleCurrentProjectChange: (project?: ProjectListItemData) => void;
-  projectList: ProjectListItemData[];
-  currentProject?: ProjectListItemData;
+  handleProjectCreate: (formData: IProjectCreatePartialForm) => void;
+  handleProjectUpdate: (newProject: IProjectRecord) => void;
+  handleProjectDelete: (project: IProjectRecord) => void;
+  handleCurrentProjectChange: (project?: IProjectRecord) => void;
+  handleProjectDragEnd: (result: DropResult) => void;
+  projectList: List<IProjectRecord>;
+  currentProject?: IProjectRecord;
 };
 
 const Navigation: React.FC<Props> = ({
-  handleSetProjectList,
+  handleProjectCreate,
   handleProjectUpdate,
   handleProjectDelete,
   handleCurrentProjectChange,
+  handleProjectDragEnd,
   projectList,
   currentProject
 }) => {
@@ -195,7 +157,7 @@ const Navigation: React.FC<Props> = ({
   }, []);
 
   const handleCurrentProjectChangeSet = React.useCallback(
-    (project: ProjectListItemData) => {
+    (project: IProjectRecord) => {
       handleCurrentProjectChange(project);
       setMobileOpen(false);
     },
@@ -212,11 +174,12 @@ const Navigation: React.FC<Props> = ({
       classes={classes}
       projectList={projectList}
       currentProject={currentProject}
+      handleProjectCreate={handleProjectCreate}
       handleCurrentProjectChange={handleCurrentProjectChangeSet}
       handleCurrentProjectClear={handleCurrentProjectClearSet}
       handleProjectUpdate={handleProjectUpdate}
       handleProjectDelete={handleProjectDelete}
-      handleSetProjectList={handleSetProjectList}
+      handleProjectDragEnd={handleProjectDragEnd}
     />
   );
 

@@ -7,92 +7,50 @@ import {
   Box,
   ListItemText
 } from "@material-ui/core";
-import _ from "lodash";
 import AddIcon from "@material-ui/icons/Add";
-import { ProjectListItemData } from "store/modules/project";
-import DrawerListItem from "./DrawerListItem";
-import { ProjectUpdateDialog } from "systems";
 import { CautionDialog } from "components";
-import { ProjectDBData } from "../../electronMain/interfaces/project";
 import {
   DragDropContext,
   Droppable,
   Draggable,
-  DropResult,
-  DraggingStyle,
-  NotDraggingStyle
+  DropResult
 } from "react-beautiful-dnd";
+import { IProjectRecord, IProjectCreatePartialForm } from "interfaces/project";
+import { List as ImmutableList } from "immutable";
+import * as NavigationService from "./NavigationService";
+import ProjectUpdateDialog, { IProjectFormProps } from "./ProjectUpdateDialog";
+import DrawerListItem from "./DrawerListItem";
 
 type Props = {
   classes: { [key: string]: string };
-  projectList: ProjectListItemData[];
-  handleProjectUpdate: (
-    projectName: string,
-    editingProject?: ProjectListItemData
+  projectList: ImmutableList<IProjectRecord>;
+  handleProjectCreate: (
+    formData: IProjectCreatePartialForm,
+    cb?: Function
   ) => void;
-  handleProjectDelete: (project: ProjectListItemData) => void;
-  handleCurrentProjectChange: (project: ProjectListItemData) => void;
+  handleProjectUpdate: (newProject: IProjectRecord, cb?: Function) => void;
+  handleProjectDelete: (project: IProjectRecord) => void;
+  handleCurrentProjectChange: (project: IProjectRecord) => void;
   handleCurrentProjectClear: () => void;
-  currentProject?: ProjectListItemData;
-  handleSetProjectList: (projectList: ProjectListItemData[]) => void;
-};
-
-// Reordering process
-// 1. Change the order of the list
-// 2. Sort the order (Ascending)
-// 3. set order value to the value with same index in the list
-const reorder = (
-  list: ProjectListItemData[],
-  startIndex: number,
-  endIndex: number
-) => {
-  const result: ProjectDBData[] = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-  const orderList = _.sortBy(result.map(item => item.order));
-  result.forEach((item, idx) => {
-    item.order = orderList[idx];
-  });
-  return result;
-};
-
-const getItemStyle = (
-  isDragging: boolean,
-  draggableStyle: DraggingStyle | NotDraggingStyle | undefined
-): React.CSSProperties => {
-  const style: React.CSSProperties = {
-    userSelect: "none",
-    letterSpacing: 1,
-    ...draggableStyle
-  };
-  if (isDragging) {
-    style.background = "rgba(0, 0, 0, 0.08)";
-  }
-  return style;
-};
-const getListStyle = (_isDraggingOver: boolean): React.CSSProperties => {
-  const style: React.CSSProperties = {
-    paddingTop: 4,
-    paddingBottom: 4
-  };
-
-  return style;
+  currentProject?: IProjectRecord;
+  handleProjectDragEnd: (result: DropResult) => void;
 };
 
 const DrawerList: React.FC<Props> = ({
   classes,
   projectList,
+  handleProjectCreate,
   handleProjectUpdate,
   handleProjectDelete,
   handleCurrentProjectClear,
   handleCurrentProjectChange,
   currentProject,
-  handleSetProjectList
+  handleProjectDragEnd
 }) => {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [editingProejct, setEditingProject] = React.useState<
-    ProjectListItemData | undefined
+    IProjectRecord | undefined
   >(undefined);
 
   const handleDialogOpen = React.useCallback(() => {
@@ -105,7 +63,7 @@ const DrawerList: React.FC<Props> = ({
   }, []);
 
   const handleEditingProjectChange = React.useCallback(
-    (project: ProjectListItemData) => {
+    (project: IProjectRecord) => {
       setEditingProject(project);
       handleDialogOpen();
     },
@@ -113,7 +71,7 @@ const DrawerList: React.FC<Props> = ({
   );
 
   const handleDeleteDialogOpen = React.useCallback(
-    (project: ProjectListItemData) => {
+    (project: IProjectRecord) => {
       setEditingProject(project);
       setDeleteDialogOpen(true);
     },
@@ -133,16 +91,21 @@ const DrawerList: React.FC<Props> = ({
   }, [editingProejct, handleProjectDelete, handleDeleteDialogClose]);
 
   const onDragEnd = (result: DropResult) => {
-    // dropped outside the list(리스트 밖으로 드랍한 경우)
-    if (!result.destination) {
-      return;
+    handleProjectDragEnd(result);
+  };
+
+  const handleSubmit = (data: unknown, createCallback?: Function) => {
+    console.log(data);
+    const formData: IProjectFormProps = data as IProjectFormProps;
+    // Create
+    if (!editingProejct) {
+      handleProjectCreate(formData, createCallback);
     }
-    const items = reorder(
-      projectList,
-      result.source.index,
-      result.destination.index
-    );
-    handleSetProjectList(items);
+    // Update
+    else {
+      const newProject = editingProejct.set("name", formData.name);
+      handleProjectUpdate(newProject, createCallback);
+    }
   };
 
   return (
@@ -166,7 +129,7 @@ const DrawerList: React.FC<Props> = ({
               disablePadding
               className={classes.drawerList}
               ref={provided.innerRef}
-              style={getListStyle(snapshot.isDraggingOver)}
+              style={NavigationService.getListStyle(snapshot.isDraggingOver)}
             >
               {projectList.map((project, index) => {
                 let selected = false;
@@ -185,7 +148,7 @@ const DrawerList: React.FC<Props> = ({
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        style={getItemStyle(
+                        style={NavigationService.getItemStyle(
                           snapshot.isDragging,
                           provided.draggableProps.style
                         )}
@@ -223,9 +186,9 @@ const DrawerList: React.FC<Props> = ({
       </ListItem>
       <ProjectUpdateDialog
         open={dialogOpen}
+        onSubmit={handleSubmit}
         editingProejct={editingProejct}
         handleClose={handleDialogClose}
-        handleProjectUpdate={handleProjectUpdate}
         projectList={projectList}
       />
       <CautionDialog

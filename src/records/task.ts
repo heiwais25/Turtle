@@ -13,6 +13,7 @@ export class TaskRecord extends Record<ITask>({
   _id: "",
   name: "",
   process: "toDo",
+  projectId: undefined,
   isDeleted: false,
   createdAt: moment().toDate(),
   updatedAt: moment().toDate(),
@@ -58,5 +59,6 @@ export class TaskListGroupRecord extends Record<ITaskListGroup>({
 }
 
 export const TaskStateRecord = Record<ITaskState>({
-  taskListGroup: new TaskListGroupRecord()
+  taskListGroup: new TaskListGroupRecord(),
+  currentTask: undefined
 });

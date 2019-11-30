@@ -54,15 +54,8 @@ class DatabaseService {
   // Project handle functions
   // ========================================================================
 
-  public async createProject(formData: {
-    name: ProjectDBData["name"];
-    order: ProjectDBData["order"];
-  }) {
-    const query: ProjectDBCreateQueryData = {
-      ...formData,
-      isDeleted: false
-    };
-    return await this.createItem<ProjectDBData>("projects", query);
+  public async createProject(formData: ProjectDBCreateQueryData) {
+    return await this.createItem<ProjectDBData>("projects", formData);
   }
 
   public async getProjectById(id: ProjectDBData["_id"]) {
