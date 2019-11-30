@@ -1,21 +1,32 @@
 import { createAction } from "redux-actions";
 import * as ActionTypes from "constants/projectActionTypes";
-import { ProjectListItemData } from "store/modules/project";
 import {
   ProjectDBData,
-  ProjectDBUpdateQueryData
+  ProjectDBUpdateQueryData,
+  ProjectDBCreateQueryData
 } from "electronMain/interfaces/project";
 import db from "store/db";
+import { IProjectRecord } from "interfaces/project";
+import { List } from "immutable";
 
 const createProjectAPI = (
-  name: ProjectDBData["name"],
-  order: ProjectDBData["order"]
+  formData: ProjectDBCreateQueryData,
+  cb?: Function
 ) => {
-  return db.createProject({ name, order });
+  return db.createProject(formData).then(res => {
+    if (cb) cb();
+    return res;
+  });
 };
 
-const updateProjectAPI = (formData: ProjectDBUpdateQueryData) => {
-  return db.updateProject(formData);
+const updateProjectAPI = (
+  formData: ProjectDBUpdateQueryData,
+  cb?: Function
+) => {
+  return db.updateProject(formData).then(res => {
+    if (cb) cb();
+    return res;
+  });
 };
 
 const getProjectListAPI = () => {
@@ -34,8 +45,8 @@ const deleteProjectAPI = (project: ProjectDBData, cb?: Function) => {
 };
 
 export const setCurrentProject = createAction(
-  ActionTypes.SET_CURRENT_PROJECT_INDEX,
-  ({ currentProject }: { currentProject?: ProjectListItemData }) => ({
+  ActionTypes.SET_CURRENT_PROJECT,
+  ({ currentProject }: { currentProject?: IProjectRecord }) => ({
     currentProject
   })
 );
@@ -61,8 +72,8 @@ export const deleteProject = createAction(
 );
 
 export const setProjectList = createAction(
-  ActionTypes.SET_PROJECT_LIST,
-  ({ projectList }: { projectList: ProjectListItemData[] }) => ({ projectList })
+  ActionTypes.SET_ROJECT_LIST,
+  ({ projectList }: { projectList: List<IProjectRecord> }) => ({ projectList })
 );
 
 export const updateProjectList = createAction(

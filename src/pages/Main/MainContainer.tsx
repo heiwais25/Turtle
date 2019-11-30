@@ -40,7 +40,7 @@ class MainContainer extends React.Component<Props, State> {
     if (currentProject) {
       formData.projectId = currentProject._id;
     }
-
+    console.log(formData);
     TaskActions.createTask(formData, cb);
   };
 

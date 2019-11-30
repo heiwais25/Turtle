@@ -1,8 +1,9 @@
 import { combineReducers } from "redux";
 import { reducer as formReducer } from "redux-form";
-import project, { ProjectState } from "./project";
+import project from "./project";
 import task from "./task";
 import { ITaskStateRecord } from "interfaces/task";
+import { IProjectStateRecord } from "interfaces/project";
 import { penderReducer, PenderState } from "redux-pender";
 
 const rootReducer = combineReducers({
@@ -14,7 +15,7 @@ const rootReducer = combineReducers({
 
 export interface StoreState {
   task: ITaskStateRecord;
-  project: ProjectState;
+  project: IProjectStateRecord;
   pender: PenderState;
 }
 
