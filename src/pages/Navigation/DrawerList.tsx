@@ -95,7 +95,6 @@ const DrawerList: React.FC<Props> = ({
   };
 
   const handleSubmit = (data: unknown, createCallback?: Function) => {
-    console.log(data);
     const formData: IProjectFormProps = data as IProjectFormProps;
     // Create
     if (!editingProejct) {

@@ -5,7 +5,6 @@ import { StoreState } from "store/modules";
 import * as projectActions from "actions/project";
 import * as taskActions from "actions/task";
 import { bindActionCreators } from "redux";
-import { ProjectDBUpdateQueryData } from "electronMain/interfaces/project";
 import {
   IProjectRecord,
   IProjectCreateForm,
@@ -74,7 +73,9 @@ class NavigationContainer extends React.Component<Props, State> {
   handleCurrentProjectChange = (project?: IProjectRecord) => {
     const { ProjectActions, TaskActions } = this.props;
     ProjectActions.setCurrentProject({ currentProject: project });
-    TaskActions.getTaskList(project ? project._id : undefined);
+    TaskActions.getTaskListOfProject({
+      projectId: project ? project._id : undefined
+    });
   };
 
   handleProjectDragEnd = (result: DropResult) => {
