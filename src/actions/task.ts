@@ -46,6 +46,13 @@ export const setCurrentTask = createAction(
 
 export const createTask = createAction(ActionTypes.CREATE_TASK, createTaskAPI);
 
+export const getTaskListOfProject = createAction(
+  ActionTypes.GET_TASK_LIST_OF_PROJECT,
+  ({ projectId }: { projectId?: string }) => ({
+    projectId
+  })
+);
+
 export const getTaskList = createAction(
   ActionTypes.GET_TASK_LIST_LOCAL,
   getTaskListAPI

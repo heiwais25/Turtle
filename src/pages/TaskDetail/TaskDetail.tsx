@@ -2,8 +2,8 @@ import React from "react";
 
 interface Props {}
 
-function TaskDetail({}: Props) {
+const TaskDetail: React.FC<Props> = () => {
   return <div>hello</div>;
-}
+};
 
 export default TaskDetail;

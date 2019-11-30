@@ -1,6 +1,7 @@
 import { Record, List } from "immutable";
 import moment from "moment";
 import { ISubTask, ITask, ITaskListGroup, ITaskState } from "interfaces/task";
+import { ITaskRecord } from "../interfaces/task";
 
 export class SubTaskRecord extends Record<ISubTask>({
   _id: "",
@@ -30,35 +31,14 @@ export class TaskRecord extends Record<ITask>({
   }
 }
 
-export class TaskListGroupRecord extends Record<ITaskListGroup>({
+export const TaskListGroupRecord = Record<ITaskListGroup>({
   toDo: List([]),
   doing: List([]),
   done: List([])
-}) {
-  constructor(taskListGroup?: ITaskListGroup) {
-    if (!taskListGroup) {
-      super();
-    } else {
-      super({
-        ...taskListGroup,
-        ...(Object.keys(taskListGroup) as ITask["process"][]).reduce<
-          ITaskListGroup
-        >(
-          (acc, cur) => {
-            console.log(cur);
-            acc[cur] = List(
-              taskListGroup[cur].map(item => new TaskRecord(item))
-            );
-            return acc;
-          },
-          { toDo: List([]), doing: List([]), done: List([]) }
-        )
-      });
-    }
-  }
-}
+});
 
 export const TaskStateRecord = Record<ITaskState>({
+  fullTaskList: List<ITaskRecord>([]),
   taskListGroup: new TaskListGroupRecord(),
   currentTask: undefined
 });

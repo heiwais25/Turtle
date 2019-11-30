@@ -23,8 +23,13 @@ export type ITaskListGroupRecord = Record<ITaskListGroup> &
   Readonly<ITaskListGroup>;
 
 export type ITaskState = {
+  fullTaskList: List<ITaskRecord>;
   taskListGroup: ITaskListGroupRecord;
   currentTask?: ITaskRecord;
 };
 
 export type ITaskStateRecord = Record<ITaskState> & Readonly<ITaskState>;
+
+export type ITaskStatePayload = ITaskStateRecord & {
+  projectId?: string;
+};

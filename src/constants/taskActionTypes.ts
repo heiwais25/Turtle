@@ -1,5 +1,7 @@
 export const GET_TASK_LIST_LOCAL = "task/GET_TASK_LIST_LOCAL";
 export const GET_TASK_LIST_REMOTE = "task/GET_TASK_LIST_REMOTE";
+export const GET_TASK_LIST_OF_PROJECT = "task/GET_TASK_LIST_OF_PROJECT";
+
 export const CREATE_TASK = "task/CREATE_TASK";
 export const UPDATE_TASK = "task/UPDATE_TASK";
 export const UPDATE_TASK_LIST = "task/UPDATE_TASK_LIST";
