@@ -7,14 +7,22 @@ import modules from "./modules";
 const logger = createLogger();
 
 export default function configureStore(): Store {
-  const composeEnhancers =
-    (window && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
+  let store: Store;
+  if (process.env.NODE_ENV === "development") {
+    const composeEnhancers =
+      (window && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) ||
+      compose;
+    store = createStore(
+      modules,
+      composeEnhancers(applyMiddleware(logger, ReduxThunk, penderMiddleware()))
+      // composeEnhancers(applyMiddleware(ReduxThunk, penderMiddleware()))
+    );
+  } else {
+    store = createStore(
+      modules,
+      compose(applyMiddleware(ReduxThunk, penderMiddleware()))
+    );
+  }
 
-  // const composeEnhancers = compose;
-  const store = createStore(
-    modules,
-    composeEnhancers(applyMiddleware(logger, ReduxThunk, penderMiddleware()))
-    // composeEnhancers(applyMiddleware(ReduxThunk, penderMiddleware()))
-  );
   return store;
 }

@@ -1,5 +1,4 @@
 import electron, { app, BrowserWindow, ipcMain } from "electron";
-import isDev from "electron-is-dev";
 import path from "path";
 import DatabaseService from "./db";
 import installExtensions, {
@@ -10,6 +9,7 @@ import "electron-reload";
 
 let mainWindow: electron.BrowserWindow | null;
 function createWindow() {
+  const isDev = process.env.NODE_ENV === "development";
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -25,14 +25,13 @@ function createWindow() {
 
   // Prepare DB
   const dbService = new DatabaseService(
-    isDev ? "." : `${app.getAppPath()}/data`
+    isDev ? "." : `${app.getPath("userData")}/data`
   );
   (global as any).db = dbService;
-
   mainWindow.loadURL(
     isDev
       ? "http://localhost:3000"
-      : `file://${path.join(__dirname, "../public/index.html")}`
+      : `file://${path.join(__dirname, "../build/index.html")}`
   );
 
   mainWindow.on("closed", () => {

@@ -20,10 +20,6 @@ import { FindTaskQueryData } from "./interfaces/task";
  * DB Wrapper handling task and project
  */
 
-async function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 type DBNameData = "tasks" | "projects";
 class DatabaseService {
   private _db!: {
@@ -43,7 +39,7 @@ class DatabaseService {
         autoload: true
       }),
       projects: new Datastore({
-        filename: `${filePath}/projects.db`,
+        filename: path.join(filePath, "projects.db"),
         timestampData: true,
         autoload: true
       })
