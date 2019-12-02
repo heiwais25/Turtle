@@ -1,8 +1,14 @@
 {
   "name": "turtle",
   "version": "0.1.0",
+  "homepage": "./",
   "private": true,
-  "main": "dist/electronMain/index.js",
+  "author": {
+    "email": "heiwais25@gmail.com",
+    "name": "JongHyun Kim",
+    "url": "https://heiwais25.github.io"
+  },
+  "main": "build/index.js",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@fortawesome/free-brands-svg-icons": "^5.11.2",
@@ -18,6 +24,9 @@
     "classnames": "^2.2.6",
     "concurrently": "^5.0.0",
     "dotenv": "^8.2.0",
+    "electron-devtools-installer": "^2.2.4",
+    "electron-is-dev": "^1.1.0",
+    "electron-reload": "^1.5.0",
     "electron-updater": "^4.2.0",
     "immer": "^4.0.2",
     "immutable": "^4.0.0-rc.12",
@@ -50,13 +59,17 @@
     "typescript": "3.6.4"
   },
   "scripts": {
-    "react:start": " react-scripts start",
+    "react:start": "react-scripts start",
     "react:build": "react-scripts build",
     "react:test": "react-scripts test",
     "react:eject": "react-scripts eject",
     "dev": "npx concurrently \"yarn react:start\" \"yarn electron:dev\"",
     "electron:start": "tsc -p tsconfig.electron.json && electron .",
-    "electron:dev": "cross-env NODE_ENV=dev nodemon --watch src/electronMain/ --exec \"yarn electron:start\" -e ts"
+    "electron:dev": "cross-env NODE_ENV=development nodemon --watch src/electronMain/ --exec \"yarn electron:start\" -e ts",
+    "electron:build": "tsc -p tsconfig.electron.json",
+    "build:linux": "yarn build:linux32 && yarn build:linux64",
+    "build:linux32": "electron-builder --linux --ia32",
+    "build:linux64": "electron-builder --linux --x64"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -74,17 +87,19 @@
     ]
   },
   "build": {
-    "appid": "some.id.ofyours",
+    "productName": "Turtle",
+    "appId": "com.example.app",
+    "extends": null,
     "directories": {
-      "buildResources": "assets"
+      "buildResources": "resources/installer/",
+      "output": "output/",
+      "app": "."
     },
-    "win": {
-      "category": "your.app.category.type",
-      "iconUrl": "path-to-icon.png"
-    },
-    "mac": {
-      "category": "your.app.category.type",
-      "iconUrl": "path-to-icon.png"
+    "linux": {
+      "target": [
+        "appImage",
+        "deb"
+      ]
     }
   },
   "devDependencies": {
@@ -109,9 +124,7 @@
     "chokidar": "^3.3.0",
     "cross-env": "^6.0.3",
     "electron": "^7.0.1",
-    "electron-devtools-installer": "^2.2.4",
-    "electron-is-dev": "^1.1.0",
-    "electron-reload": "^1.5.0",
+    "electron-builder": "^21.2.0",
     "eslint-plugin-react-hooks": "^2.2.0",
     "nodemon": "^1.19.4",
     "ts-loader": "^6.2.1",
