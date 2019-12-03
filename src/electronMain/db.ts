@@ -31,19 +31,26 @@ class DatabaseService {
    * Initialize DB
    * @param path Directory to store Data Base
    */
-  constructor(filePath: string) {
-    this._db = {
-      tasks: new Datastore({
-        filename: path.join(filePath, "tasks.db"),
-        timestampData: true,
-        autoload: true
-      }),
-      projects: new Datastore({
-        filename: path.join(filePath, "projects.db"),
-        timestampData: true,
-        autoload: true
-      })
-    };
+  constructor(filePath: string, inMemory: boolean = false) {
+    if (inMemory) {
+      this._db = {
+        tasks: new Datastore(),
+        projects: new Datastore()
+      };
+    } else {
+      this._db = {
+        tasks: new Datastore({
+          filename: path.join(filePath, "tasks.db"),
+          timestampData: true,
+          autoload: true
+        }),
+        projects: new Datastore({
+          filename: path.join(filePath, "projects.db"),
+          timestampData: true,
+          autoload: true
+        })
+      };
+    }
   }
 
   // ========================================================================
