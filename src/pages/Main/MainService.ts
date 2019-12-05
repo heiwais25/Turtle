@@ -73,7 +73,7 @@ export const processDragEnd = (
  * @param startIndex index of dragged item
  * @param endIndex index of dropped item
  */
-function reorderTaskInSameTaskList(
+export function reorderTaskInSameTaskList(
   taskList: List<ITaskRecord>,
   startIndex: number,
   endIndex: number

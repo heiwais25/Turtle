@@ -1,0 +1,54 @@
+language: node_js
+node_js:
+  - 13.1
+
+matrix:
+  include:
+    - os: linux
+      services: docker
+      language: generic
+      sudo: required
+      dist: trusty
+
+notifications:
+  email: false
+
+cache:
+  yarn: true
+  directories:
+    - node_modules
+    - $HOME/.cache/electron
+    - $HOME/.cache/electron-builder
+
+before_script:
+  - git lfs pull
+
+script:
+  - |
+    if [ "$TRAVIS_OS_NAME" == "linux" ]; then
+      docker run --rm \
+        -v ${PWD}:/project \
+        -v ~/.cache/electron:/root/.cache/electron \
+        -v ~/.cache/electron-builder:/root/.cache/electron-builder \
+        electronuserland/builder:12-11.19 \
+        /bin/bash -c "node --version && yarn install && yarn test"
+    else
+      yarn test
+    fi
+
+# Only Deploy to github on a merge to develop
+deploy:
+  provider: script
+  script: bash deploy.travis.sh
+  skip_cleanup: true
+  on:
+    branch: master
+
+before_cache:
+  - rm -rf $HOME/.cache/electron-builder/wine
+
+branches:
+  only:
+    - master
+    - release
+    - develop
