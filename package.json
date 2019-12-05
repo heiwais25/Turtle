@@ -1,12 +1,17 @@
 {
   "name": "turtle",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "./",
-  "private": true,
+  "private": false,
+  "license": "MIT",
   "author": {
     "email": "heiwais25@gmail.com",
     "name": "JongHyun Kim",
     "url": "https://heiwais25.github.io"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heiwais25/Turtle"
   },
   "main": "build/index.js",
   "dependencies": {
@@ -54,6 +59,7 @@
     "redux-logger": "^3.0.6",
     "redux-pender": "^2.0.12",
     "redux-thunk": "^2.3.0",
+    "rewire": "^4.0.1",
     "rxjs": "^6.5.3",
     "thenify": "^3.3.0",
     "typescript": "3.6.4"
@@ -64,12 +70,16 @@
     "react:test": "react-scripts test",
     "react:eject": "react-scripts eject",
     "dev": "npx concurrently \"yarn react:start\" \"yarn electron:dev\"",
+    "test": "yarn react:test --watchAll=false",
     "electron:start": "tsc -p tsconfig.electron.json && electron .",
     "electron:dev": "cross-env NODE_ENV=development nodemon --watch src/electronMain/ --exec \"yarn electron:start\" -e ts",
     "electron:build": "tsc -p tsconfig.electron.json",
-    "build:linux": "yarn build:linux32 && yarn build:linux64",
+    "build": "run-s react:build electron:build",
+    "build:linux": "run-s build:linux32 build:linux64",
     "build:linux32": "electron-builder --linux --ia32",
-    "build:linux64": "electron-builder --linux --x64"
+    "build:linux64": "electron-builder --linux --x64",
+    "release:electron": "electron-builder --publish=always",
+    "release": "cross-env NODE_ENV=production run-s build release:electron"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -97,10 +107,29 @@
     },
     "linux": {
       "target": [
-        "appImage",
-        "deb"
+        {
+          "target": "appImage",
+          "arch": [
+            "ia32",
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "ia32",
+            "x64"
+          ]
+        }
       ]
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "heiwais25",
+        "repo": "Turtle"
+      }
+    ]
   },
   "devDependencies": {
     "@babel/cli": "^7.7.0",
@@ -119,6 +148,7 @@
     "@types/redux-actions": "^2.6.1",
     "@types/redux-form": "^8.1.9",
     "@types/redux-logger": "^3.0.7",
+    "@types/rewire": "^2.5.28",
     "babel-loader": "^8.0.6",
     "babel-preset-env": "^1.7.0",
     "chokidar": "^3.3.0",
@@ -127,6 +157,7 @@
     "electron-builder": "^21.2.0",
     "eslint-plugin-react-hooks": "^2.2.0",
     "nodemon": "^1.19.4",
+    "npm-run-all": "^4.1.5",
     "ts-loader": "^6.2.1",
     "ts-node": "^8.4.1",
     "webpack": "4.41.0",
