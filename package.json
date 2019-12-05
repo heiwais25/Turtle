@@ -1,8 +1,9 @@
 {
   "name": "turtle",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "./",
-  "private": true,
+  "private": false,
+  "license": "MIT",
   "author": {
     "email": "heiwais25@gmail.com",
     "name": "JongHyun Kim",
@@ -77,7 +78,8 @@
     "build:linux": "run-s build:linux32 build:linux64",
     "build:linux32": "electron-builder --linux --ia32",
     "build:linux64": "electron-builder --linux --x64",
-    "release": "run-s build build:linux"
+    "release:electron": "electron-builder --publish=always",
+    "release": "cross-env NODE_ENV=production run-s build release:electron"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -105,10 +107,29 @@
     },
     "linux": {
       "target": [
-        "appImage",
-        "deb"
+        {
+          "target": "appImage",
+          "arch": [
+            "ia32",
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "ia32",
+            "x64"
+          ]
+        }
       ]
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "heiwais25",
+        "repo": "Turtle"
+      }
+    ]
   },
   "devDependencies": {
     "@babel/cli": "^7.7.0",
