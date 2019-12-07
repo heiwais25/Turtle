@@ -3,12 +3,10 @@ import { Grid, Box, Paper, IconButton } from "@material-ui/core";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ExpandLessIcon from "@material-ui/icons/ExpandLess";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-import TaskListItem, { ITaskFormProps } from "./TaskListItem";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import { ProcessTypes } from "../../electronMain/interfaces/task";
-import { ITaskListGroupRecord } from "interfaces/task";
-import { ITaskRecord } from "../../interfaces/task";
-import TaskList from "./TaskList";
+import { ProcessTypes } from "electronMain/interfaces/task";
+import { ITaskListGroupRecord, ITaskRecord } from "interfaces/task";
+import { TaskList, TaskListItem, ITaskFormProps } from "systems/Main";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -54,6 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
 type IMainProps = {
   taskListGroup: ITaskListGroupRecord;
   fetchTaskLoading: boolean;
+  handleTaskDetailLinkClick: (task: ITaskRecord) => void;
   handleTaskCreate: (formData: ITaskFormProps, cb?: Function) => void;
   handleTaskUpdate: (newTask: ITaskRecord, cb?: Function) => void;
   handleTaskDelete: (task: ITaskRecord, cb?: Function) => void;
@@ -64,6 +63,7 @@ type IMainProps = {
 const Main: React.FC<IMainProps> = ({
   taskListGroup,
   fetchTaskLoading,
+  handleTaskDetailLinkClick,
   handleTaskCreate,
   handleTaskUpdate,
   handleTaskDelete,
@@ -138,6 +138,7 @@ const Main: React.FC<IMainProps> = ({
                         handleTaskToggle={handleTaskToggle}
                         handleTaskUpdate={handleTaskUpdate}
                         handleTaskDelete={handleTaskDelete}
+                        handleTaskDetailLinkClick={handleTaskDetailLinkClick}
                         listInfo={listInfo}
                       />
                     );

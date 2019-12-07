@@ -20,8 +20,7 @@ import {
 import { IProjectRecord, IProjectCreatePartialForm } from "interfaces/project";
 import { List } from "immutable";
 import { DropResult } from "react-beautiful-dnd";
-import DrawerList from "./DrawerList";
-import SearchBar from "./SearchBar";
+import { DrawerList, SearchBar } from "systems/Navigation";
 
 const drawerWidth = 240;
 

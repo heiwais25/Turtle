@@ -182,6 +182,7 @@ type IDisplayTextBoxLisItemProps = {
   ) => void;
   handleEditButtonClick: () => void;
   handleDeleteButtonClick: (cb?: Function) => void;
+  handleDoubleClick: () => void;
   task: ITask;
 };
 
@@ -196,7 +197,8 @@ const DisplayTextBoxLisItem: React.FC<IDisplayTextBoxLisItemProps> = ({
   task,
   handleCheckboxToggle,
   handleDeleteButtonClick,
-  handleEditButtonClick
+  handleEditButtonClick,
+  handleDoubleClick
 }) => {
   const [state, setState] = React.useState<{
     mouseX: null | number;
@@ -260,6 +262,7 @@ const DisplayTextBoxLisItem: React.FC<IDisplayTextBoxLisItemProps> = ({
   return (
     <Grid container onContextMenu={handleContextMenu}>
       <ListItem
+        onDoubleClick={handleDoubleClick}
         button
         className={classNames(classes.textBox, {
           [classes.canceledText]: isChecked
@@ -295,6 +298,7 @@ export interface IProps {
   handleTaskCreate?: (formData: ITaskFormProps, cb?: Function) => void;
   handleTaskUpdate?: (newTask: ITaskRecord, cb?: Function) => void;
   handleTaskDelete?: (task: ITaskRecord, cb?: Function) => void;
+  handleTaskDetailLinkClick?: (task: ITaskRecord) => void;
 }
 
 function TaskListItem(props: IProps) {
@@ -303,7 +307,8 @@ function TaskListItem(props: IProps) {
     handleToggle,
     handleTaskCreate,
     handleTaskUpdate,
-    handleTaskDelete
+    handleTaskDelete,
+    handleTaskDetailLinkClick
   } = props;
   const classes = useStyles();
   const [isEditMode, setEditMode] = React.useState(false);
@@ -350,6 +355,12 @@ function TaskListItem(props: IProps) {
     }
   };
 
+  const handleDoubleClick = () => {
+    if (handleTaskDetailLinkClick && task) {
+      handleTaskDetailLinkClick(task);
+    }
+  };
+
   if (isEditMode) {
     return (
       <Grid container alignItems="center">
@@ -371,6 +382,7 @@ function TaskListItem(props: IProps) {
           handleCheckboxToggle={handleCheckboxToggle}
           handleEditButtonClick={handleEditButtonClick}
           handleDeleteButtonClick={handleDeleteButtonClick}
+          handleDoubleClick={handleDoubleClick}
           task={task}
         />
       ) : (

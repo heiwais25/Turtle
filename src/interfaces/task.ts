@@ -32,4 +32,5 @@ export type ITaskStateRecord = Record<ITaskState> & Readonly<ITaskState>;
 
 export type ITaskStatePayload = ITaskStateRecord & {
   projectId?: string;
+  id: string;
 };
