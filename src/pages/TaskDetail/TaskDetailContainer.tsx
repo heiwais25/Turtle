@@ -6,7 +6,6 @@ import { bindActionCreators } from "redux";
 import { StoreState } from "store/modules";
 import * as taskActions from "actions/task";
 import { ITaskRecord } from "interfaces/task";
-import { ITaskListGroupRecord } from "../../interfaces/task";
 import { List } from "immutable";
 
 type State = {};

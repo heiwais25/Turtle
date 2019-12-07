@@ -12,7 +12,7 @@ import {
 } from "interfaces/project";
 import { List } from "immutable";
 import { DropResult } from "react-beautiful-dnd";
-import * as NavigationService from "./NavigationService";
+import * as NavigationService from "services/Navigation/NavigationService";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 
 type State = {};

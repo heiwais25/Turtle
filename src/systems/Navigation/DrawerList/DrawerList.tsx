@@ -17,9 +17,9 @@ import {
 } from "react-beautiful-dnd";
 import { IProjectRecord, IProjectCreatePartialForm } from "interfaces/project";
 import { List as ImmutableList } from "immutable";
-import * as NavigationService from "./NavigationService";
-import ProjectUpdateDialog, { IProjectFormProps } from "./ProjectUpdateDialog";
-import DrawerListItem from "./DrawerListItem";
+import * as NavigationService from "services/Navigation/NavigationService";
+import ProjectUpdateDialog, { IProjectFormProps } from "../ProjectUpdateDialog";
+import DrawerListItem from "../DrawerListItem";
 
 type Props = {
   classes: { [key: string]: string };

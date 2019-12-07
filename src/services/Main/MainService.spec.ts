@@ -1,11 +1,10 @@
 import { TaskRecord, TaskListGroupRecord } from "records/task";
-import { ITask } from "interfaces/task";
 import { ISubTaskRecord } from "interfaces/task";
 import { List } from "immutable";
 import moment from "moment";
 import { processToggle, processDragEnd } from "./MainService";
 import { DraggableLocation } from "react-beautiful-dnd";
-import { ProcessTypes } from "../../electronMain/interfaces/task";
+import { ProcessTypes } from "electronMain/interfaces/task";
 
 describe("Main service unit tests", () => {
   describe("progressToggle", () => {

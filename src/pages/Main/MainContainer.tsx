@@ -6,13 +6,12 @@ import { TaskDBCreateFormData } from "electronMain/interfaces/task";
 import * as taskActions from "actions/task";
 import * as TaskActionTypes from "constants/taskActionTypes";
 import Main from "./Main";
-import { ITaskFormProps } from "./TaskListItem";
 import { IProject } from "../../interfaces/project";
-import { getChangedTaskList } from "./MainService";
 import { ITaskRecord, ITaskListGroupRecord } from "interfaces/task";
 import { DropResult } from "react-beautiful-dnd";
 import { RouteComponentProps } from "react-router-dom";
-import * as MainService from "./MainService";
+import { ITaskFormProps } from "systems/Main";
+import * as MainService from "services/Main/MainService";
 
 type State = {};
 
@@ -74,7 +73,7 @@ class MainContainer extends React.Component<Props, State> {
    */
   handleGroupedTaskListChange = (taskListGroup: ITaskListGroupRecord) => {
     const { TaskActions, taskListGroup: previousGroupedTasklist } = this.props;
-    const changedTaskList = getChangedTaskList(
+    const changedTaskList = MainService.getChangedTaskList(
       taskListGroup,
       previousGroupedTasklist
     );

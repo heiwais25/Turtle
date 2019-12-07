@@ -16,10 +16,10 @@ import {
 } from "react-beautiful-dnd";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import { List as ImmutableList } from "immutable";
-import * as MainService from "./MainService";
+import * as MainService from "services/Main/MainService";
 import { ITaskRecord } from "interfaces/task";
 import { ProcessTypes } from "electronMain/interfaces/task";
-import TaskListItem from "./TaskListItem";
+import TaskListItem from "../TaskListItem";
 import classNames from "classnames";
 
 const useStyles = makeStyles((theme: Theme) =>
