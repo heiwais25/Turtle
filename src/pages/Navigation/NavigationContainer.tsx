@@ -13,6 +13,7 @@ import {
 import { List } from "immutable";
 import { DropResult } from "react-beautiful-dnd";
 import * as NavigationService from "./NavigationService";
+import { withRouter, RouteComponentProps } from "react-router-dom";
 
 type State = {};
 
@@ -26,7 +27,7 @@ type ReduxDispatchProps = {
   TaskActions: typeof taskActions;
 };
 
-type Props = {} & ReduxStateProps & ReduxDispatchProps;
+type Props = {} & ReduxStateProps & ReduxDispatchProps & RouteComponentProps;
 
 class NavigationContainer extends React.Component<Props, State> {
   handleProjectCreate = (
@@ -71,7 +72,10 @@ class NavigationContainer extends React.Component<Props, State> {
   };
 
   handleCurrentProjectChange = (project?: IProjectRecord) => {
-    const { ProjectActions, TaskActions } = this.props;
+    const { ProjectActions, TaskActions, history, location } = this.props;
+    if (location.pathname !== "/") {
+      history.push("/");
+    }
     ProjectActions.setCurrentProject({ currentProject: project });
     TaskActions.getTaskListOfProject({
       projectId: project ? project._id : undefined
@@ -128,4 +132,4 @@ export default connect(
     ProjectActions: bindActionCreators(projectActions, dispatch),
     TaskActions: bindActionCreators(taskActions, dispatch)
   })
-)(NavigationContainer);
+)(withRouter(NavigationContainer));

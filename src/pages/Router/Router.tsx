@@ -10,8 +10,8 @@ const Router = () => {
       <div style={{ display: "flex" }}>
         <NavigationContainer />
         <Switch>
+          <Route path="/detail/:id" component={TaskDetailContainer} />
           <Route path="/" component={MainContainer} />
-          <Route path="/detail" component={TaskDetailContainer} />
         </Switch>
       </div>
     </React.Fragment>

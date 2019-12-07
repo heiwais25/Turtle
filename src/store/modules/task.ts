@@ -9,6 +9,25 @@ import { List } from "immutable";
 
 export default handleActions<ITaskStateRecord, ITaskStatePayload>(
   {
+    [ActionTypes.SET_CURRENT_TASK]: (state, action) => {
+      const { currentTask } = action.payload;
+      if (!currentTask) {
+        return state;
+      }
+
+      return state.set("currentTask", currentTask);
+    },
+    [ActionTypes.SET_CURRENT_TASK_BY_ID]: (state, action) => {
+      const taskId = action.payload.id;
+      // get
+      const task = state.fullTaskList.find(item => item._id === taskId);
+
+      if (!task) {
+        return state;
+      }
+
+      return state.set("currentTask", task);
+    },
     [ActionTypes.UPDATE_TASK_LIST_GROUP]: (state, action) => {
       const { taskListGroup } = action.payload;
       return state.set("taskListGroup", taskListGroup);

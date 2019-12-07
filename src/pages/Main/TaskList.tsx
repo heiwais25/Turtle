@@ -58,6 +58,7 @@ interface IProps {
   handleTaskToggle: (task: ITaskRecord) => void;
   handleTaskUpdate: (newTask: ITaskRecord, cb?: Function) => void;
   handleTaskDelete: (task: ITaskRecord, cb?: Function) => void;
+  handleTaskDetailLinkClick: (task: ITaskRecord) => void;
   listInfo: { label: string; value: ProcessTypes };
 }
 
@@ -70,7 +71,8 @@ const TaskList: React.FC<IProps> = ({
   fetchTaskLoading,
   handleTaskToggle,
   handleTaskUpdate,
-  handleTaskDelete
+  handleTaskDelete,
+  handleTaskDetailLinkClick
 }) => {
   const classes = useStyles();
 
@@ -140,6 +142,7 @@ const TaskList: React.FC<IProps> = ({
                       handleToggle={handleTaskToggle}
                       handleTaskUpdate={handleTaskUpdate}
                       handleTaskDelete={handleTaskDelete}
+                      handleTaskDetailLinkClick={handleTaskDetailLinkClick}
                     />
                   </div>
                 )}

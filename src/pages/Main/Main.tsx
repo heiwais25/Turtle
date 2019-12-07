@@ -54,6 +54,7 @@ const useStyles = makeStyles((theme: Theme) =>
 type IMainProps = {
   taskListGroup: ITaskListGroupRecord;
   fetchTaskLoading: boolean;
+  handleTaskDetailLinkClick: (task: ITaskRecord) => void;
   handleTaskCreate: (formData: ITaskFormProps, cb?: Function) => void;
   handleTaskUpdate: (newTask: ITaskRecord, cb?: Function) => void;
   handleTaskDelete: (task: ITaskRecord, cb?: Function) => void;
@@ -64,6 +65,7 @@ type IMainProps = {
 const Main: React.FC<IMainProps> = ({
   taskListGroup,
   fetchTaskLoading,
+  handleTaskDetailLinkClick,
   handleTaskCreate,
   handleTaskUpdate,
   handleTaskDelete,
@@ -138,6 +140,7 @@ const Main: React.FC<IMainProps> = ({
                         handleTaskToggle={handleTaskToggle}
                         handleTaskUpdate={handleTaskUpdate}
                         handleTaskDelete={handleTaskDelete}
+                        handleTaskDetailLinkClick={handleTaskDetailLinkClick}
                         listInfo={listInfo}
                       />
                     );

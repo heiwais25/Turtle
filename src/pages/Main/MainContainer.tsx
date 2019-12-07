@@ -11,6 +11,7 @@ import { IProject } from "../../interfaces/project";
 import { getChangedTaskList } from "./MainService";
 import { ITaskRecord, ITaskListGroupRecord } from "interfaces/task";
 import { DropResult } from "react-beautiful-dnd";
+import { RouteComponentProps } from "react-router-dom";
 import * as MainService from "./MainService";
 
 type State = {};
@@ -26,7 +27,7 @@ type ReduxDispatchProps = {
   TaskActions: typeof taskActions;
 };
 
-type Props = {} & ReduxStateProps & ReduxDispatchProps;
+type Props = {} & ReduxStateProps & ReduxDispatchProps & RouteComponentProps;
 
 class MainContainer extends React.Component<Props, State> {
   handleTaskCreate = (partialFormData: ITaskFormProps, cb?: Function) => {
@@ -105,13 +106,20 @@ class MainContainer extends React.Component<Props, State> {
     this.handleGroupedTaskListChange(newGroupedTaskList);
   };
 
+  handleTaskDetailLinkClick = (task: ITaskRecord) => {
+    const { history, TaskActions } = this.props;
+    TaskActions.setCurrentTask({ currentTask: task });
+    history.push(`/detail/${task._id}`);
+  };
+
   render() {
     const {
       handleTaskCreate,
       handleTaskUpdate,
       handleTaskDelete,
       handleTaskDragEnd,
-      handleTaskToggle
+      handleTaskToggle,
+      handleTaskDetailLinkClick
     } = this;
     const { taskListGroup, loading } = this.props;
 
@@ -126,6 +134,7 @@ class MainContainer extends React.Component<Props, State> {
           handleTaskDelete={handleTaskDelete}
           handleTaskDragEnd={handleTaskDragEnd}
           handleTaskToggle={handleTaskToggle}
+          handleTaskDetailLinkClick={handleTaskDetailLinkClick}
           taskListGroup={taskListGroup}
           fetchTaskLoading={fetchTaskLoading}
         />
