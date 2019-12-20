@@ -2,9 +2,8 @@ import { handleActions, Action } from "redux-actions";
 import { ITaskDB } from "electronMain/interfaces/task";
 import { pender } from "redux-pender/lib/utils";
 import * as ActionTypes from "constants/taskActionTypes";
-import { ITask, ITaskStateRecord } from "interfaces/task";
+import { ITask, ITaskStateRecord, ITaskStatePayload } from "interfaces/task";
 import { TaskRecord, TaskStateRecord, TaskListGroupRecord } from "records/task";
-import { ITaskStatePayload } from "../../interfaces/task";
 import { List } from "immutable";
 
 export default handleActions<ITaskStateRecord, ITaskStatePayload>(
@@ -87,7 +86,7 @@ export default handleActions<ITaskStateRecord, ITaskStatePayload>(
       type: ActionTypes.UPDATE_TASK,
       onSuccess: (state, action: Action<ITask>) => {
         const updatedTask = action.payload;
-        const { taskListGroup, fullTaskList } = state;
+        const { taskListGroup, fullTaskList, currentTask } = state;
 
         // Find in the current task
         const taskIdx = taskListGroup[updatedTask.process].findIndex(
@@ -104,12 +103,53 @@ export default handleActions<ITaskStateRecord, ITaskStatePayload>(
 
         const updatedTaskRecord = new TaskRecord(updatedTask);
 
-        return state
+        let newState = state
           .setIn(
             ["taskListGroup", updatedTask.process, taskIdx],
             updatedTaskRecord
           )
           .setIn(["fullTaskList", taskIdxInFullList], updatedTaskRecord);
+
+        if (currentTask && currentTask._id === updatedTask._id) {
+          newState = newState.set("currentTask", updatedTaskRecord);
+        }
+
+        return newState;
+      }
+    }),
+    ...pender({
+      type: ActionTypes.CREATE_SUB_TASK,
+      onSuccess: (state, action: Action<ITask>) => {
+        const updatedTask = action.payload;
+        const { taskListGroup, fullTaskList, currentTask } = state;
+
+        // Find in the current task
+        const taskIdx = taskListGroup[updatedTask.process].findIndex(
+          task => task._id === updatedTask._id
+        );
+
+        const taskIdxInFullList = fullTaskList.findIndex(
+          task => task._id === updatedTask._id
+        );
+
+        if (taskIdx < 0 || taskIdxInFullList < 0) {
+          return state;
+        }
+
+        const updatedTaskRecord = new TaskRecord(updatedTask);
+
+        let newState = state
+          .setIn(
+            ["taskListGroup", updatedTask.process, taskIdx],
+            updatedTaskRecord
+          )
+          .setIn(["fullTaskList", taskIdxInFullList], updatedTaskRecord);
+
+        if (currentTask && currentTask._id === updatedTask._id) {
+          newState = newState.set("currentTask", updatedTaskRecord);
+        }
+
+        return newState;
       }
     }),
     ...pender({

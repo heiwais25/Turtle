@@ -7,6 +7,7 @@ import {
 } from "electronMain/interfaces/task";
 import db from "store/db";
 import { ITaskListGroup, ITaskRecord } from "../interfaces/task";
+import { SubTaskDBCreateFormData } from "../electronMain/interfaces/task";
 
 const createTaskAPI = (formData: TaskDBCreateFormData, cb?: Function) => {
   return db.createTask(formData).then(res => {
@@ -32,6 +33,17 @@ const updateTaskListAPI = (taskList: ITaskDB[]) => {
 
 const deleteTaskAPI = (task: ITaskDB, cb?: Function) => {
   return db.deleteTask(task).then(res => {
+    if (cb) cb();
+    return res;
+  });
+};
+
+const createSubTaskAPI = (
+  taskId: string,
+  formData: SubTaskDBCreateFormData,
+  cb?: Function
+) => {
+  return db.createSubTask(taskId, formData).then(res => {
     if (cb) cb();
     return res;
   });
@@ -77,4 +89,9 @@ export const updateTaskListGroup = createAction(
 export const updateTaskList = createAction(
   ActionTypes.UPDATE_TASK_LIST,
   updateTaskListAPI
+);
+
+export const createSubTask = createAction(
+  ActionTypes.CREATE_SUB_TASK,
+  createSubTaskAPI
 );

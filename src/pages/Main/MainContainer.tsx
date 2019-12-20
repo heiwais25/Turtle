@@ -106,9 +106,15 @@ class MainContainer extends React.Component<Props, State> {
   };
 
   handleTaskDetailLinkClick = (task: ITaskRecord) => {
-    const { history, TaskActions } = this.props;
+    const { history, TaskActions, currentProject } = this.props;
     TaskActions.setCurrentTask({ currentTask: task });
-    history.push(`/detail/${task._id}`);
+
+    let link = `/detail/${task._id}`;
+    if (currentProject) {
+      link += `/${currentProject._id}`;
+    }
+
+    history.push(link);
   };
 
   render() {

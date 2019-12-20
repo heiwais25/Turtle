@@ -10,3 +10,5 @@ export const SET_CURRENT_TASK = "task/SET_CURRENT_TASK";
 export const SET_CURRENT_TASK_BY_ID = "task/SET_CURRENT_TASK_BY_ID";
 export const UPDATE_TASK_LIST_GROUP = "task/UPDATE_TASK_LIST_GROUP";
 export const CHANGE_TASK_ORDER = "task/CHANGE_TASK_ORDER";
+
+export const CREATE_SUB_TASK = "task/CREATE_SUB_TASK";

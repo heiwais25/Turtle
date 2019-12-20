@@ -7,11 +7,21 @@ export interface ISubTask extends ISubTaskDB {}
 
 export type ISubTaskRecord = Record<ISubTask> & Readonly<ISubTask>;
 
-export interface ITask extends Omit<ITaskDB, "subTaskList"> {
+export interface ITaskWithRawSub extends Omit<ITaskDB, "subTaskList"> {
   subTaskList: List<ISubTask>;
 }
 
-export type ITaskRecord = Record<ITask> & Readonly<ITask>;
+export interface ITask extends Omit<ITaskDB, "subTaskList"> {
+  subTaskList: ISubTask[];
+}
+
+export interface ITaskWithSubTaskListRecord
+  extends Omit<ITaskDB, "subTaskList"> {
+  subTaskList: List<ISubTaskRecord>;
+}
+
+export type ITaskRecord = Record<ITaskWithSubTaskListRecord> &
+  Readonly<ITaskWithSubTaskListRecord>;
 
 export type ITaskListGroup = {
   toDo: List<ITaskRecord>;

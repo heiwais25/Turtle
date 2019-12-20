@@ -51,6 +51,13 @@ export const setCurrentProject = createAction(
   })
 );
 
+export const setCurrentProjectById = createAction(
+  ActionTypes.SET_CURRENT_PROJECT_BY_ID,
+  ({ id }: { id: string }) => ({
+    id
+  })
+);
+
 export const createProject = createAction(
   ActionTypes.CREATE_PROJECT,
   createProjectAPI

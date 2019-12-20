@@ -1,23 +1,8 @@
 import * as React from "react";
-import {
-  ListItem,
-  TextField,
-  Grid,
-  Box,
-  Checkbox,
-  ListItemIcon,
-  ListItemText,
-  IconButton,
-  Menu,
-  MenuItem
-} from "@material-ui/core";
+import { Grid } from "@material-ui/core";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-import DeleteIcon from "@material-ui/icons/Delete";
-import EditIcon from "@material-ui/icons/Edit";
-import useForm from "react-hook-form";
-import classNames from "classnames";
-import AddIcon from "@material-ui/icons/Add";
-import { ITask, ITaskRecord } from "interfaces/task";
+import { ITaskRecord } from "interfaces/task";
+import { TaskBox, TaskFormBox, TaskAddBox } from "systems/Main";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -27,10 +12,10 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     textBox: {
       backgroundColor: "white",
-      padding: theme.spacing(0),
-      fontSize: "1rem",
+      padding: theme.spacing(0.5, 0),
+      fontSize: "14px",
       borderRadius: "3px",
-      height: "56px",
+      // minHeight: "48px",
       boxShadow: "0 1px 0 rgba(9,30,66,.25)",
       display: "relative",
       "&:hover": {
@@ -42,6 +27,13 @@ const useStyles = makeStyles((theme: Theme) =>
         content: "⚠ "
       }
     },
+    subInfoGrid: {
+      padding: theme.spacing(0.5, 0, 0.5, 5),
+      fontSize: "0.8rem",
+      "& > div": {
+        marginRight: theme.spacing(0.5)
+      }
+    },
     icon: {
       marginRight: theme.spacing(1)
     },
@@ -49,17 +41,27 @@ const useStyles = makeStyles((theme: Theme) =>
       position: "absolute",
       right: 5,
       display: "none",
-      padding: theme.spacing(1),
+      padding: theme.spacing(0.5),
       "& svg": {
         width: "18px",
         height: "18px"
       }
     },
     form: {
-      width: "100%"
+      width: "100%",
+      "& input": {
+        padding: theme.spacing(1)
+      }
     },
     checkbox: {
-      padding: "0 5px"
+      paddingLeft: theme.spacing(0.5),
+      "& > span": {
+        padding: theme.spacing(0.5)
+      },
+      "& svg": {
+        width: "20px",
+        height: "20px"
+      }
     },
     addIcon: {
       padding: "0 11px"
@@ -87,205 +89,20 @@ const useStyles = makeStyles((theme: Theme) =>
     canceledText: {
       textDecoration: "line-through !important",
       color: "grey"
+    },
+    dueDate: {
+      color: "#5e6c84",
+      borderRadius: "3px",
+      fontSize: "12px"
+    },
+    overDueDate: {
+      backgroundColor: "#fb7563",
+      borderRadius: "3px",
+      color: "white",
+      fontSize: "12px"
     }
   })
 );
-
-type ITextFieldFormListItemProps = {
-  classes: { [key: string]: string };
-  onSubmit: (data: unknown, cb?: Function) => void;
-  onBlur: () => void;
-  task?: ITask;
-};
-
-const TextFieldFormListItem: React.FC<ITextFieldFormListItemProps> = ({
-  classes,
-  onSubmit,
-  onBlur,
-  task
-}) => {
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.keyCode === 27) {
-      onBlur();
-    }
-  };
-  const defaultValue = task ? task.name : "";
-
-  const { register, handleSubmit, errors, reset } = useForm();
-  return (
-    <ListItem className={classes.textBox} dense>
-      <form
-        className={classes.form}
-        onSubmit={handleSubmit(data => onSubmit(data, reset))}
-      >
-        <TextField
-          name="name"
-          inputRef={register({
-            required: "this is required"
-          })}
-          defaultValue={defaultValue}
-          fullWidth
-          autoFocus
-          variant="outlined"
-          placeholder="Add New Task"
-          onBlur={onBlur}
-          onKeyDown={handleKeyDown}
-        />
-        {errors.name && (
-          <Box
-            className={classes.errorMessage}
-            color="secondary.main"
-            display="inline"
-            component={"p"}
-          >
-            {`⚠ ${errors.name.message}`}
-          </Box>
-        )}
-      </form>
-    </ListItem>
-  );
-};
-
-type IAddTextBoxListItemProps = {
-  classes: { [key: string]: string };
-  handleEditButtonClick: () => void;
-};
-
-// In the case of addition of task
-const AddTextBoxListItem: React.FC<IAddTextBoxListItemProps> = ({
-  classes,
-  handleEditButtonClick
-}) => {
-  return (
-    <ListItem
-      button
-      onClick={handleEditButtonClick}
-      className={classes.textBox}
-      dense
-    >
-      <ListItemIcon className={classes.addIcon}>
-        <AddIcon />
-      </ListItemIcon>
-      <ListItemText>
-        <Box display="inline" fontSize="1rem">
-          Add New Task
-        </Box>
-      </ListItemText>
-    </ListItem>
-  );
-};
-
-type IDisplayTextBoxLisItemProps = {
-  classes: { [key: string]: string };
-  handleCheckboxToggle: (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => void;
-  handleEditButtonClick: () => void;
-  handleDeleteButtonClick: (cb?: Function) => void;
-  handleDoubleClick: () => void;
-  task: ITask;
-};
-
-const initialState = {
-  mouseX: null,
-  mouseY: null
-};
-
-// Just visualize the information of task
-const DisplayTextBoxLisItem: React.FC<IDisplayTextBoxLisItemProps> = ({
-  classes,
-  task,
-  handleCheckboxToggle,
-  handleDeleteButtonClick,
-  handleEditButtonClick,
-  handleDoubleClick
-}) => {
-  const [state, setState] = React.useState<{
-    mouseX: null | number;
-    mouseY: null | number;
-  }>(initialState);
-
-  const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!state.mouseY) {
-      setState({
-        mouseX: event.clientX - 2,
-        mouseY: event.clientY - 4
-      });
-    } else {
-      setState(initialState);
-    }
-    event.stopPropagation();
-    event.preventDefault();
-  };
-  const handleClose = () => {
-    setState(initialState);
-  };
-
-  const handleDeleteButtonClickWithCallback = () => {
-    handleDeleteButtonClick(handleClose);
-  };
-
-  const isChecked = task.process === "done";
-
-  const menu = (
-    <Menu
-      id="simple-menu"
-      keepMounted
-      anchorReference="anchorPosition"
-      open={state.mouseY !== null}
-      onClose={handleClose}
-      classes={{
-        paper: classes.anchorMenuPaper
-      }}
-      className={classes.drawerMenu}
-      anchorPosition={
-        state.mouseY !== null && state.mouseX !== null
-          ? { top: state.mouseY, left: state.mouseX }
-          : undefined
-      }
-    >
-      <MenuItem onClick={handleEditButtonClick}>
-        <ListItemIcon>
-          <EditIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText primary="Edit" />
-      </MenuItem>
-      <MenuItem onClick={handleDeleteButtonClickWithCallback}>
-        <ListItemIcon>
-          <DeleteIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText primary="Delete" />
-      </MenuItem>
-    </Menu>
-  );
-
-  return (
-    <Grid container onContextMenu={handleContextMenu}>
-      <ListItem
-        onDoubleClick={handleDoubleClick}
-        button
-        className={classNames(classes.textBox, {
-          [classes.canceledText]: isChecked
-        })}
-        dense
-      >
-        <ListItemIcon className={classes.checkbox}>
-          <Checkbox onClick={handleCheckboxToggle} checked={isChecked} />
-        </ListItemIcon>
-        <ListItemText>
-          <Box display="inline">{task.name}</Box>
-        </ListItemText>
-        <IconButton
-          className={classNames(classes.editButton, "editButton")}
-          onClick={handleEditButtonClick}
-        >
-          <EditIcon fontSize="small" />
-        </IconButton>
-      </ListItem>
-      {menu}
-    </Grid>
-  );
-};
 
 export type ITaskFormProps = {
   _id?: string;
@@ -364,7 +181,7 @@ function TaskListItem(props: IProps) {
   if (isEditMode) {
     return (
       <Grid container alignItems="center">
-        <TextFieldFormListItem
+        <TaskFormBox
           classes={classes}
           onSubmit={handleSubmit}
           onBlur={handleEditTextfieldBlur}
@@ -377,7 +194,7 @@ function TaskListItem(props: IProps) {
   return (
     <Grid container alignItems="center">
       {task ? (
-        <DisplayTextBoxLisItem
+        <TaskBox
           classes={classes}
           handleCheckboxToggle={handleCheckboxToggle}
           handleEditButtonClick={handleEditButtonClick}
@@ -386,7 +203,7 @@ function TaskListItem(props: IProps) {
           task={task}
         />
       ) : (
-        <AddTextBoxListItem
+        <TaskAddBox
           classes={classes}
           handleEditButtonClick={handleEditButtonClick}
         />

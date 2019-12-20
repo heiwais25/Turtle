@@ -3,14 +3,25 @@ import { pender } from "redux-pender/lib/utils";
 import { List } from "immutable";
 import { ProjectDBData } from "electronMain/interfaces/project";
 import { ProjectRecord, ProjectStateRecord } from "records/project";
-import { IProjectStateRecord } from "interfaces/project";
+import { IProjectStateRecord, IProjectStatePayload } from "interfaces/project";
 import * as ActionTypes from "constants/projectActionTypes";
 
-export default handleActions<IProjectStateRecord>(
+export default handleActions<IProjectStateRecord, IProjectStatePayload>(
   {
     [ActionTypes.SET_CURRENT_PROJECT]: (state, action) => {
       const { currentProject } = action.payload;
       return state.set("currentProject", currentProject);
+    },
+    [ActionTypes.SET_CURRENT_PROJECT_BY_ID]: (state, action) => {
+      const projectId = action.payload.id;
+
+      const project = state.projectList.find(item => item._id === projectId);
+
+      if (!project) {
+        return state;
+      }
+
+      return state.set("currentProject", project);
     },
     [ActionTypes.SET_ROJECT_LIST]: (state, action) => {
       const { projectList } = action.payload;

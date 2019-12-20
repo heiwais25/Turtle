@@ -10,7 +10,10 @@ const Router = () => {
       <div style={{ display: "flex" }}>
         <NavigationContainer />
         <Switch>
-          <Route path="/detail/:id" component={TaskDetailContainer} />
+          <Route
+            path="/detail/:taskId/:projectId?"
+            component={TaskDetailContainer}
+          />
           <Route path="/" component={MainContainer} />
         </Switch>
       </div>

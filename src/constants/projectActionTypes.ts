@@ -5,5 +5,6 @@ export const UPDATE_PROJECT = "project/UPDATE_PROJECT";
 export const SET_ROJECT_LIST = "project/SET_ROJECT_LIST";
 export const DELETE_PROJECT = "project/DELETE_PROJECT";
 export const SET_CURRENT_PROJECT = "project/SET_CURRENT_PROJECT";
+export const SET_CURRENT_PROJECT_BY_ID = "project/SET_CURRENT_PROJECT_BY_ID";
 export const UPDATE_PROJECT_LIST = "project/UPDATE_PROJECT_LIST";
 export const CHANGE_PROJECT_ORDER = "project/CHANGE_PROJECT_ORDER";

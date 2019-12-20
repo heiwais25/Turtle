@@ -29,3 +29,7 @@ export type IProjectState = {
 
 export type IProjectStateRecord = Record<IProjectState> &
   Readonly<IProjectState>;
+
+export type IProjectStatePayload = IProjectStateRecord & {
+  id: string;
+};

@@ -1,4 +1,5 @@
 import Datastore from "nedb";
+import uuidv1 from "uuid/v1";
 import {
   ITaskDB,
   ISubTaskDB,
@@ -175,6 +176,7 @@ class DatabaseService {
   ) {
     const query: SubTaskDBCreateQueryData = {
       ...formData,
+      _id: uuidv1(),
       isFinished: false
     };
 

@@ -6,6 +6,8 @@ import { RouterContainer } from "pages";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 import "./App.css";
+import "react-dates/initialize";
+import "react-dates/lib/css/_datepicker.css";
 
 // Color pallete referencing https://colorhunt.co/palette/22272
 const theme = createMuiTheme({
@@ -27,6 +29,11 @@ const theme = createMuiTheme({
     MuiListItemIcon: {
       root: {
         minWidth: "40px"
+      }
+    },
+    MuiInputBase: {
+      root: {
+        fontSize: "14px"
       }
     },
     MuiTypography: {

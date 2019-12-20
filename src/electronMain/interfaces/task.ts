@@ -47,7 +47,13 @@ export type TaskDBUpdateQueryData = {
   dueAt?: ITaskDB["dueAt"];
 };
 
+export type SubTaskDBCreateFormData = {
+  name: ITaskDB["name"];
+  order: ITaskDB["order"];
+};
+
 export type SubTaskDBCreateQueryData = {
+  _id: ISubTaskDB["_id"];
   name: ISubTaskDB["name"];
   order: ISubTaskDB["order"];
   isFinished: ISubTaskDB["isFinished"];
