@@ -36,7 +36,7 @@
     "immer": "^4.0.2",
     "immutable": "^4.0.0-rc.12",
     "is-electron": "^2.2.0",
-    "lodash-es": "^4.17.15",
+    "lodash-es": "^4.17.21",
     "lodash-move": "^1.1.1",
     "moment": "^2.24.0",
     "nedb": "^1.8.0",
